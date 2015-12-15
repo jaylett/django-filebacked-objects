@@ -1,5 +1,7 @@
 # Django file-backed objects
 
+[![Circle CI](https://circleci.com/gh/jaylett/django-filebacked-objects.svg?style=svg)](https://circleci.com/gh/jaylett/django-filebacked-objects)
+
 Access file-backed objects in something resembling the ORM. You should
 be able to use generic views to build on them.
 
