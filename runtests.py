@@ -1,29 +1,25 @@
+#!/usr/bin/env python
+import os
 import sys
 
 import django
 from django.conf import settings
-from django.test.runner import DiscoverRunner
-
-
-def runtests():
-    django.setup()
-    settings.configure(
-        DEBUG=True,
-        INSTALLED_APPS = [
-            'django_FBO',
-        ],
-        DATABASES = {
-        },
-    )
-
-    test_runner = DiscoverRunner(
-        verbosity=1,
-        failfast=False,
-    )
-    failures = test_runner.run_tests(['django_FBO', ])
-    if failures:
-        sys.exit(failures)
+from django.test.utils import get_runner
 
 
 if __name__ == "__main__":
-    runtests()
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
+    django.setup()
+    TestRunner = get_runner(settings)
+
+    class NoDbTestRunner(TestRunner):
+
+        def setup_databases(self, **kwargs):
+            return None
+
+        def teardown_databases(self, old_config, **kwargs):
+            pass
+    
+    test_runner = NoDbTestRunner()
+    failures = test_runner.run_tests(["tests"])
+    sys.exit(bool(failures))

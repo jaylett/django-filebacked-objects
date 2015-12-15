@@ -1,4 +1,5 @@
-from django.test import TestCase
+import os.path
+from django.test import SimpleTestCase as TestCase
 
 from django_FBO import FBO, Q
 
@@ -32,13 +33,11 @@ class TestAll(TestCase):
                 'test1.rst',
                 'test2.rst',
                 'test3.rst',
-            }
-            set(
-                [ o.name for o in qs ]
-            ),
+            },
+            { o.name for o in qs },
         )
-        
-    
+
+
     def test_glob_restriction(self):
         """With globbing."""
 
@@ -55,10 +54,8 @@ class TestAll(TestCase):
             {
                 'test1.md',
                 'test2.md',
-            }
-            set(
-                [ o.name for o in qs ]
-            ),
+            },
+            { o.name for o in qs },
         )
 
 
@@ -90,7 +87,7 @@ class TestGet(TestCase):
             qs = FBO(
                 path=TEST_FILES_ROOT,
                 glob='*.md',
-            ).all.get(
+            ).all().get(
                 name='test1.rst',
             )
 
