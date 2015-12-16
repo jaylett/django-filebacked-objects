@@ -41,6 +41,13 @@ new.
     else:
         print("No objects found.")
 
+## TODO
+
+ * metadata from detached file (with auto-detection of format?)
+ * tests for metadata from detached file
+ * test for FBO().objects
+ * test for SubclassOfFBO().stuff
+
 ## Requirements
 
 Django 1.9, Python 3. A file system.
