@@ -4,5 +4,4 @@
     "size": "little",
     "metadata-format": "JSON"
 }
-
 My little explicit JSON test.
