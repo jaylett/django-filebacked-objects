@@ -1,5 +1,6 @@
 import fnmatch
 import json
+from operator import attrgetter
 import yaml
 from django.contrib.staticfiles import utils
 from django.core.files.storage import FileSystemStorage
@@ -162,7 +163,7 @@ class FBO:
             obj = next(_iter)
         return obj
     
-    def order_by(self, args):
+    def order_by(self, *args):
         return self.clone(_order_by=args)
 
     def get(self, **kwargs):
@@ -194,13 +195,23 @@ class FBO:
     
     def __iter__(self):
         self._prefetch()
-        # FIXME: lazy order_by here
+        # apply order_by here because we may have prefetched on a
+        # previous copy of this
+        _objects = self._fetched
+        for _order_by in self._order_by:
+            if _order_by[0] == '-':
+                _rev = True
+                _attr = _order_by[1:]
+            else:
+                _rev = False
+                _attr = _order_by
+            _objects = sorted(_objects, key=attrgetter(_attr), reverse=_rev)
 
         # check filters here as well as so we can copy
         # our cached fetched data around, to avoid hitting
         # the filesystem so much
         #print("__iter__()")
-        for _file in self._fetched:
+        for _file in _objects:
             #print("Considering %s" % _file)
             if self._check_filters(_file):
                 #print("  matches filters.")
