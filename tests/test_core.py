@@ -20,7 +20,11 @@ class TestAll(TestCase):
 
         qs = FBO(
             path=TEST_FILES_ROOT,
-        ).all()
+        ).exclude(
+            path__glob='*~',
+        ).exclude(
+            path__glob='*.meta',
+        )
 
         self.assertEqual(
             5,
