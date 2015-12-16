@@ -41,7 +41,6 @@ class TestAll(TestCase):
             { o.name for o in qs },
         )
 
-
     def test_glob_restriction(self):
         """With globbing."""
 
@@ -106,11 +105,11 @@ class TestGet(TestCase):
 
 class TestOrdering(TestCase):
     """
-    Can we read objects from files correctly?
+    Can we order objects based on metadata?
     """
 
-    def test_extrinsic_metadata(self):
-        """Extrinsic metadata."""
+    def test_intrinsic_metadata(self):
+        """Intrinsic metadata."""
 
         qs = FBO(
             path=TEST_FILES_ROOT,
@@ -122,12 +121,20 @@ class TestOrdering(TestCase):
             2,
             qs.count(),
         )
+        # Have to test this both ways so that however it
+        # comes out of the filesystem "by default" (ie
+        # intrinsically, probably inode ordering) we'll get
+        # a failure if our explicit ordering isn't applied.
         self.assertEqual(
             'test1.md',
-            qs.order_by('title')[0].name,
+            qs.order_by('name')[0].name,
+        )
+        self.assertEqual(
+            'test2.md',
+            qs.order_by('-name')[0].name,
         )
 
-    def test_intrinsic_metadata(self):
+    def test_extrinsic_metadata(self):
         """Various format front matter."""
 
         qs = FBO(
@@ -140,9 +147,17 @@ class TestOrdering(TestCase):
             3,
             qs.count(),
         )
+        # Have to test this both ways so that however it
+        # comes out of the filesystem "by default" (ie
+        # intrinsically, probably inode ordering) we'll get
+        # a failure if our explicit ordering isn't applied.
         self.assertEqual(
             'test1.rst',
-            qs.order_by('title')[0].title,
+            qs.order_by('title')[0].name,
+        )
+        self.assertEqual(
+            'test3.rst',
+            qs.order_by('-title')[0].name,
         )
 
 
