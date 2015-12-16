@@ -172,11 +172,11 @@ class TestObjects(TestCase):
         obj = FBO(
             path=TEST_FILES_ROOT,
         ).all().get(
-            name='test3.rst',
+            name='test1.md',
         )
 
         self.assertEqual(
-            'My little explicit JSON test.',
+            'A short work by me, for you to read.\n',
             obj.content,
         )
 
@@ -203,6 +203,7 @@ class TestObjects(TestCase):
 
         obj = FBO(
             path=TEST_FILES_ROOT,
+            metadata=FBO.MetadataInFileHead,
         ).all().get(
             name='test3.rst',
         )
@@ -215,12 +216,7 @@ class TestObjects(TestCase):
             'little',
             obj.size,
         )
-        # And transformed keys
-        self.assertEqual(
-            'JSON',
-            obj.metadata_format,
-        )
-        # And access it directly
+        # And access ones directly that don't work as attributes
         self.assertEqual(
             'JSON',
             obj.metadata.get('metadata-format'),
@@ -256,7 +252,11 @@ class TestMetadataFormats(TestCase):
 
         self.assertEqual(
             'This one is third in the alphabet',
-            obj.name,
+            obj.title,
+        )
+        self.assertEqual(
+            'My little explicit JSON test.\n',
+            obj.content,
         )
 
     def test_implicit_yaml(self):
@@ -271,8 +271,12 @@ class TestMetadataFormats(TestCase):
         )
 
         self.assertEqual(
-            'A the start of the alphabet',
-            obj.name,
+            'At the start of the alphabet',
+            obj.title,
+        )
+        self.assertEqual(
+            'My little implicit YAML test.\n',
+            obj.content,
         )
 
     def test_explicit_yaml(self):
@@ -288,5 +292,26 @@ class TestMetadataFormats(TestCase):
 
         self.assertEqual(
             'Second in the alphabet',
-            obj.name,
+            obj.title,
+        )
+        self.assertEqual(
+            'My little explicit YAML test.\n',
+            obj.content,
+        )
+
+    def test_no_metadata(self):
+        """Nothing at all."""
+
+        obj = FBO(
+            path=TEST_FILES_ROOT,
+            glob='*.rst',
+        ).all().get(
+            name='test2.rst',
+        )
+
+        with self.assertRaises(KeyError):
+            _ = obj.title
+        self.assertEqual(
+            '---\ntitle: Second in the alphabet\n---\nMy little explicit YAML test.\n',
+            obj.content,
         )
