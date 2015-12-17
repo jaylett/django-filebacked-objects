@@ -233,7 +233,7 @@ class FBO:
                 _field_val = getattr(_file, _field)
                 op = Operators.get(_operator)
                 if op is None:
-                    raise Exception(
+                    raise ValueError(
                         "No such operator '%s' in filter '%s'" % (
                             _operator,
                             _filter,
@@ -269,8 +269,24 @@ def globerator(field, field_val, filter_val):
 
 def equals(field, field_val, filter_val):
     return field_val == filter_val
-    
+
+def lte(field, field_val, filter_val):
+    return field_val <= filter_val
+
+def gte(field, field_val, filter_val):
+    return field_val >= filter_val
+
+def contains(field, field_val, filter_val):
+    return filter_val in field_val
+
+def in_operator(field, field_val, filter_val):
+    return field_val in filter_val
+
 Operators = {
     'glob': globerator,
     'equals': equals,
+    'lte': lte,
+    'gte': gte,
+    'contains': contains,
+    'in': in_operator,
 }

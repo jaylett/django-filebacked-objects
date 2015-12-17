@@ -10,6 +10,12 @@ TEST_FILES_ROOT=os.path.join(
 )
 
 
+class RST_FBO(FBO):
+    path = TEST_FILES_ROOT
+    metadata = FBO.MetadataInFileHead
+    glob='*.rst'
+
+
 class TestAll(TestCase):
     """
     Can we read all objects correctly?
@@ -226,6 +232,7 @@ class TestObjects(TestCase):
                 'title',
                 'author',
                 'size',
+                'tags',
                 'metadata-format',
             },
             set(
@@ -300,7 +307,7 @@ class TestMetadataFormats(TestCase):
         )
 
     def test_no_metadata(self):
-        """Nothing at all."""
+        """Ignore front matter."""
 
         obj = FBO(
             path=TEST_FILES_ROOT,
@@ -312,7 +319,7 @@ class TestMetadataFormats(TestCase):
         with self.assertRaises(KeyError):
             _ = obj.title
         self.assertEqual(
-            '---\ntitle: Second in the alphabet\n---\nMy little explicit YAML test.\n',
+            '---\ntitle: Second in the alphabet\nsize: middling\ntags:\n - tag2\n - tag_all\n---\nMy little explicit YAML test.\n',
             obj.content,
         )
 
@@ -344,12 +351,7 @@ class TestSubclassing(TestCase):
     def test_simple_defaults(self):
         """Set new defaults and accept them."""
 
-        class MyFBO(FBO):
-            path = TEST_FILES_ROOT
-            metadata = FBO.MetadataInFileHead
-            glob='*.rst'
-
-        qs = MyFBO().objects.all()
+        qs = RST_FBO().objects.all()
         self.assertEqual(
             3,
             qs.count(),
@@ -378,3 +380,73 @@ class TestSubclassing(TestCase):
             'Second in the alphabet',
             qs.get(name='test2.rst').title,
         )
+
+
+class TestOperators(TestCase):
+    """Test various operators."""
+
+    def test_equals(self):
+        self.assertEqual(
+            'test2.rst',
+            RST_FBO().objects.get(name__equals='test2.rst').name,
+        )
+
+    def test_implicit_equals(self):
+        self.assertEqual(
+            'test2.rst',
+            RST_FBO().objects.get(name='test2.rst').name,
+        )
+
+    def test_lte(self):
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.rst',
+            ],
+            [
+                o.name for o in RST_FBO(
+                ).objects.filter(
+                    name__lte='test2.rst',
+                ).order_by('name')
+            ],
+        )
+
+    def test_gte(self):
+        self.assertEqual(
+            [
+                'test2.rst',
+                'test3.rst',
+            ],
+            [
+                o.name for o in RST_FBO(
+                ).objects.filter(
+                    name__gte='test2.rst',
+                ).order_by('name')
+            ],
+        )
+
+    def test_contains(self):
+        self.assertEqual(
+            'test2.rst',
+            RST_FBO().get(tags__contains='tag2').name,
+        )
+
+    def test_in(self):
+        self.assertEqual(
+            [
+                'test2.rst',
+                'test3.rst',
+            ],
+            [
+                o.name for o in RST_FBO().filter(
+                    size__in=[
+                        'little',
+                        'middling',
+                    ],
+                )
+            ],
+        )
+
+    def test_no_such_operator(self):
+        with self.assertRaises(ValueError):
+            RST_FBO().filter(name__sort_of='test1').get()
