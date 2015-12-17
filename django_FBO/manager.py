@@ -85,6 +85,7 @@ class FBO:
     storage = FileSystemStorage
     path = None
     metadata = None
+    glob = None
 
     _filters = None
     _excludes = None
@@ -106,6 +107,10 @@ class FBO:
         if 'glob' in kwargs and kwargs['glob'] is not None:
             self._filters.append(
                 ('name__glob', kwargs['glob']),
+            )
+        elif self.glob is not None:
+            self._filters.append(
+                ('name__glob', self.glob),
             )
         
         if self.path is None:
