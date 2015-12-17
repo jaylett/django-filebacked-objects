@@ -45,6 +45,8 @@ new.
 
  * metadata from detached file (with auto-detection of format?)
  * tests for metadata from detached file
+ * more operators, in particular __contains (for tags &c)
+ * Q objects (principally for `|`)
 
 ## Requirements
 
