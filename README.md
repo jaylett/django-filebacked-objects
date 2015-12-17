@@ -45,8 +45,6 @@ new.
 
  * metadata from detached file (with auto-detection of format?)
  * tests for metadata from detached file
- * test for FBO().objects
- * test for SubclassOfFBO().stuff
 
 ## Requirements
 

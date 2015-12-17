@@ -21,9 +21,9 @@ class TestAll(TestCase):
         qs = FBO(
             path=TEST_FILES_ROOT,
         ).exclude(
-            path__glob='*~',
+            name__glob='*~',
         ).exclude(
-            path__glob='*.meta',
+            name__glob='*.meta',
         )
 
         self.assertEqual(
@@ -314,4 +314,67 @@ class TestMetadataFormats(TestCase):
         self.assertEqual(
             '---\ntitle: Second in the alphabet\n---\nMy little explicit YAML test.\n',
             obj.content,
+        )
+
+
+class TestConvenience(TestCase):
+    """Test some convenience shims and wrappers."""
+
+    def test_objects(self):
+        """FBO.objects, kind of like the ORM."""
+
+        obj = FBO(
+            path=TEST_FILES_ROOT,
+            metadata=FBO.MetadataInFileHead,
+        ).objects.all().filter(
+            name__glob='*.rst',
+        ).get(
+            name='test2.rst',
+        )
+
+        self.assertEqual(
+            'Second in the alphabet',
+            obj.title,
+        )
+
+
+class TestSubclassing(TestCase):
+    """Can we subclass FBO to set defaults?"""
+
+    def test_simple_defaults(self):
+        """Set new defaults and accept them."""
+
+        class MyFBO(FBO):
+            path = TEST_FILES_ROOT
+            metadata = FBO.MetadataInFileHead
+            glob='*.rst'
+
+        qs = MyFBO().objects.all()
+        self.assertEqual(
+            3,
+            qs.count(),
+        )
+        self.assertEqual(
+            'Second in the alphabet',
+            qs.get(name='test2.rst').title,
+        )
+
+    def test_override_defaults(self):
+        """Set new defaults and override some on instantiation."""
+
+        class MyFBO(FBO):
+            path = '/tmp/'
+            metadata = FBO.MetadataInFileHead
+            glob='*.rst'
+
+        qs = MyFBO(
+            path=TEST_FILES_ROOT,
+        ).objects.all()
+        self.assertEqual(
+            3,
+            qs.count(),
+        )
+        self.assertEqual(
+            'Second in the alphabet',
+            qs.get(name='test2.rst').title,
         )
