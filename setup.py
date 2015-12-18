@@ -14,7 +14,8 @@ setup(
     author='James Aylett',
     author_email='james@tartarus.org',
     install_requires=[
-        'Django>=1.9',
+        'Django~=1.9',
+        'PyYAML~=3.11',
     ],
     url = 'https://github.com/jaylett/django-filebacked-objects',
     classifiers = [

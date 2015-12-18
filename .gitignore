@@ -1,2 +1,4 @@
 /ENV*
 *.pyc
+/MANIFEST
+/dist
