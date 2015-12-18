@@ -11,6 +11,9 @@ class DoesNotExist(Exception):
 
 
 class FileObject:
+    DoesNotExist = DoesNotExist
+    class _meta:
+        verbose_name = 'FileObjects'
 
     def __init__(self, storage, metadata_location, name):
         self.storage = storage
@@ -75,7 +78,15 @@ class FileObject:
         return self.name
 
 
-OPTS = [ 'path', 'metadata', '_filters', '_excludes', '_order_by', 'storage' ]
+OPTS = [
+    'path',
+    'metadata',
+    'model',
+    'storage',
+    '_filters',
+    '_excludes',
+    '_order_by',
+]
 
 
 class FBO:
@@ -86,6 +97,7 @@ class FBO:
     path = None
     metadata = None
     glob = None
+    model = FileObject
 
     _filters = None
     _excludes = None
@@ -193,7 +205,7 @@ class FBO:
             #print("Starting _prefetch")
             for fname in utils.get_files(self._storage):
                 #print("Found %s." % fname)
-                _file = FileObject(self._storage, self.metadata, fname)
+                _file = self.model(self._storage, self.metadata, fname)
                 if self._check_filters(_file):
                     #print("  matches filters")
                     self._fetched.append(_file)

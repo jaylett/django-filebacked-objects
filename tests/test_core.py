@@ -1,7 +1,7 @@
 import os.path
 from django.test import SimpleTestCase as TestCase
 
-from django_FBO import FBO, Q
+from django_FBO import FBO, FileObject
 
 from .utils import RST_FBO, TEST_FILES_ROOT
 
@@ -371,4 +371,19 @@ class TestSubclassing(TestCase):
             qs.get(name='test2.rst').title,
         )
 
+    def test_override_model(self):
+        """Change the FileObject model."""
 
+        class MyModel(FileObject):
+            def render(self):
+                return self.content
+
+        class MyFBO(FBO):
+            path = TEST_FILES_ROOT
+            metadata = FBO.MetadataInFileHead
+            model = MyModel
+
+        self.assertEqual(
+            'My little explicit YAML test.\n',
+            MyFBO().objects.get(name='test2.rst').render(),
+        )

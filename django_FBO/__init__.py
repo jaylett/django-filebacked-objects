@@ -1,2 +1,2 @@
-from .manager import FBO
+from .manager import FBO, FileObject
 from .query import Q
