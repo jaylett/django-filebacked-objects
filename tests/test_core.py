@@ -90,6 +90,12 @@ class TestGet(TestCase):
                 name='test1.rst',
             )
 
+    def test_multiple(self):
+        """Can't get if we resolve multiple objects."""
+
+        with self.assertRaises(FBO.MultipleObjectsReturned):
+            _ = RST_FBO().get()
+
     def test_missing(self):
         with self.assertRaises(FBO.DoesNotExist):
             FBO(

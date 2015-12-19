@@ -10,6 +10,10 @@ class DoesNotExist(Exception):
     pass
 
 
+class MultipleObjectsReturned(Exception):
+    pass
+
+
 class FileObject:
     DoesNotExist = DoesNotExist
     class _meta:
@@ -92,6 +96,7 @@ OPTS = [
 class FBO:
     MetadataInFileHead = True
     DoesNotExist = DoesNotExist
+    MultipleObjectsReturned = MultipleObjectsReturned
 
     storage = FileSystemStorage
     path = None
@@ -187,9 +192,9 @@ class FBO:
         filtered = self.clone().filter(**kwargs)
         _count = filtered.count()
         if _count == 0:
-            raise DoesNotExist
+            raise self.DoesNotExist
         elif _count > 1:
-            raise Exception("Multiple objects")
+            raise self.MultipleObjectsReturned
         else:
             return filtered[0]
     
