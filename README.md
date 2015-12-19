@@ -45,7 +45,6 @@ new.
 
  * metadata from detached file (with auto-detection of format?)
  * tests for metadata from detached file
- * Q objects (principally for `|`)
 
 ## Requirements
 

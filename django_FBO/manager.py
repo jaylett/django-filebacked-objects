@@ -1,9 +1,10 @@
-import fnmatch
 import json
 from operator import attrgetter
 import yaml
 from django.contrib.staticfiles import utils
 from django.core.files.storage import FileSystemStorage
+
+from .query import Q
 
 
 class DoesNotExist(Exception):
@@ -88,7 +89,6 @@ OPTS = [
     'model',
     'storage',
     '_filters',
-    '_excludes',
     '_order_by',
 ]
 
@@ -105,15 +105,12 @@ class FBO:
     model = FileObject
 
     _filters = None
-    _excludes = None
     _order_by = None
 
     def __init__(self, **kwargs):
         self._fetched = None
         if self._filters is None:
             self._filters = []
-        if self._excludes is None:
-            self._excludes = []
         if self._order_by is None:
             self._order_by = []
 
@@ -122,12 +119,12 @@ class FBO:
                 if kwargs[opt] is not None:
                     setattr(self, opt, kwargs[opt])
         if 'glob' in kwargs and kwargs['glob'] is not None:
-            self._filters.append(
-                ('name__glob', kwargs['glob']),
+            self._add_q(
+                Q(name__glob=kwargs['glob']),
             )
         elif self.glob is not None:
-            self._filters.append(
-                ('name__glob', self.glob),
+            self._add_q(
+                Q(name__glob=self.glob),
             )
         
         if self.path is None:
@@ -156,25 +153,18 @@ class FBO:
     def all(self):
         return self.clone()
 
-    def filter(self, **kwargs):
-        _filters = []
-        for k, v in kwargs.items():
-            _filters.append(
-                (k, v),
-            )
-        return self.clone(
-            _filters=self._filters + _filters,
-        )
+    def _add_q(self, q_object):
+        self._filters.append(q_object)
     
-    def exclude(self, **kwargs):
-        _excludes = []
-        for k, v in kwargs.items():
-            _excludes.append(
-                (k, v),
-            )
-        return self.clone(
-            _excludes=self._excludes + _excludes,
-        )
+    def filter(self, *args, **kwargs):
+        clone = self.clone()
+        clone._add_q(Q(*args, **kwargs))
+        return clone
+    
+    def exclude(self, *args, **kwargs):
+        clone = self.clone()
+        clone._add_q(~Q(*args, **kwargs))
+        return clone
     
     def __len__(self):
         return self.count()
@@ -188,8 +178,8 @@ class FBO:
     def order_by(self, *args):
         return self.clone(_order_by=args)
 
-    def get(self, **kwargs):
-        filtered = self.clone().filter(**kwargs)
+    def get(self, *args, **kwargs):
+        filtered = self.clone().filter(*args, **kwargs)
         _count = filtered.count()
         if _count == 0:
             raise self.DoesNotExist
@@ -240,70 +230,7 @@ class FBO:
                 yield _file
 
     def _check_filters(self, _file):
-        def _check(filters, invert):
-            for _filter, _filter_val in filters:
-                if '__' in _filter:
-                    _field, _operator = _filter.split('__', 2)
-                else:
-                    _field, _operator = _filter, 'equals'
-
-                _field_val = getattr(_file, _field)
-                op = Operators.get(_operator)
-                if op is None:
-                    raise ValueError(
-                        "No such operator '%s' in filter '%s'" % (
-                            _operator,
-                            _filter,
-                        )
-                    )
-
-                _op_result = op(_field, _field_val, _filter_val)
-                #print(
-                #    "Filter %s.%s__%s=%s: %s -> %s" % (
-                #        _file,
-                #        _field,
-                #        _operator,
-                #        _filter_val,
-                #        _field_val,
-                #        _op_result,
-                #    )
-                #)
-                if not invert and not _op_result:
-                    return False
-                if invert and _op_result:
-                    return False
-            return True
-
-        if not _check(self._filters, False):
-            return False
-        if not _check(self._excludes, True):
-            return False
+        for _filter in self._filters:
+            if not _filter(_file):
+                return False
         return True
-
-
-def globerator(field, field_val, filter_val):
-    return fnmatch.fnmatch(field_val, filter_val)
-
-def equals(field, field_val, filter_val):
-    return field_val == filter_val
-
-def lte(field, field_val, filter_val):
-    return field_val <= filter_val
-
-def gte(field, field_val, filter_val):
-    return field_val >= filter_val
-
-def contains(field, field_val, filter_val):
-    return filter_val in field_val
-
-def in_operator(field, field_val, filter_val):
-    return field_val in filter_val
-
-Operators = {
-    'glob': globerator,
-    'equals': equals,
-    'lte': lte,
-    'gte': gte,
-    'contains': contains,
-    'in': in_operator,
-}

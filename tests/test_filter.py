@@ -73,3 +73,79 @@ class TestOperators(TestCase):
     def test_no_such_operator(self):
         with self.assertRaises(ValueError):
             RST_FBO().filter(name__sort_of='test1').get()
+
+
+class TestQ(TestCase):
+    """Tests for using Q objects in filtering."""
+
+    def test_simple_filter(self):
+        """Single leg Q in filter()"""
+
+        self.assertEquals(
+            'test1.rst',
+            RST_FBO().filter(
+                Q(name='test1.rst'),
+            ).get().name,
+        )
+
+    def test_simple_exclude(self):
+        """Single leg Q in exclude()"""
+
+        self.assertEquals(
+            [
+                'test1.rst',
+                'test2.rst',
+            ],
+            [
+                o.name for o in RST_FBO().exclude(
+                    Q(name='test3.rst'),
+                )
+            ],
+        )
+
+    def test_simple_get(self):
+        """Single leg Q in get()"""
+
+        self.assertEquals(
+            'test1.rst',
+            RST_FBO().get(
+                Q(name='test1.rst'),
+            ).name,
+        )
+
+    def test_or(self):
+        """Logical or Qs"""
+
+        self.assertEquals(
+            [
+                'test1.rst',
+                'test2.rst',
+            ],
+            [
+                o.name for o in RST_FBO().filter(
+                    Q(name='test1.rst') | Q(name='test2.rst'),
+                )
+            ],
+        )
+
+    def test_and(self):
+        """Logical and Qs"""
+
+        self.assertEquals(
+            'test1.rst',
+            RST_FBO().get(
+                Q(name='test1.rst') & Q(size='large'),
+            ).name
+        )
+
+    def test_tree(self):
+        """Complex tree of Qs"""
+
+        self.assertEquals(
+            'test1.rst',
+            RST_FBO().get(
+                (
+                    Q(name='test1.rst') | Q(name='test2.rst')
+                ) & Q(size='large'),
+            ).name
+        )
