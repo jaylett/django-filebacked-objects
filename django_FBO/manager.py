@@ -1,3 +1,4 @@
+import collections
 import json
 from operator import attrgetter
 import yaml
@@ -111,8 +112,12 @@ class FBO:
         self._fetched = None
         if self._filters is None:
             self._filters = []
+        else:
+            self._filters = self._filters[:]
         if self._order_by is None:
             self._order_by = []
+        else:
+            self._order_by = self._order_by[:]
 
         for opt in OPTS:
             if opt in kwargs:
@@ -141,6 +146,13 @@ class FBO:
         for opt in OPTS:
             val = getattr(self, opt)
             if val is not None:
+                # Lists must be duplicated, not just copied by
+                # reference, otherwise if we mutate them in-place
+                # in the clone it will affect the parent. This is
+                # particularly bad if you reuse FBO objects, which
+                # you probably will for instance in generic CBVs.
+                if isinstance(val, collections.Iterable):
+                    val = val[:]
                 kwargs.setdefault(opt, val)
         # cached data
         kwargs['_fetched'] = self._fetched

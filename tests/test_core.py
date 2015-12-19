@@ -58,6 +58,26 @@ class TestAll(TestCase):
         )
 
 
+class TestClone(TestCase):
+    """Does clone do so properly?"""
+
+    def test_filters_are_clones_not_references(self):
+        """_filter must be cloned"""
+        # Everything else is considered immutable
+        qs = FBO(
+            path=TEST_FILES_ROOT,
+            glob='*.rst',
+        )
+        self.assertEqual(
+            3,
+            qs.count(),
+        )
+        qs2 = qs.filter(name='test1.rst')
+        self.assertEqual(
+            3,
+            qs.count(),
+        )
+
 class TestGet(TestCase):
     """
     Can we read a single object correctly?
