@@ -21,5 +21,8 @@ if __name__ == "__main__":
             pass
     
     test_runner = NoDbTestRunner()
-    failures = test_runner.run_tests(["tests"])
+    if len(sys.argv) > 1:
+        failures = test_runner.run_tests(sys.argv[1:])
+    else:
+        failures = test_runner.run_tests(['tests'])
     sys.exit(bool(failures))
