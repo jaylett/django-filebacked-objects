@@ -413,3 +413,180 @@ class TestSubclassing(TestCase):
             'My little explicit YAML test.\n',
             MyFBO().objects.get(name='test2.rst').render(),
         )
+
+
+class TestSlice(TestCase):
+    """Can we slice FBO?"""
+
+    def setUp(self):
+        self.qs = FBO(
+            path=TEST_FILES_ROOT,
+        ).exclude(
+            name__glob='*~',
+        ).exclude(
+            name__glob='*.meta',
+        ).order_by(
+            'name'
+        )
+
+    def test_sliced_filter(self):
+        # We want to test that the slice is applied last.
+        # However we prefetch at the start of the iterator,
+        # so we need to cause that prefetch to happen before
+        # the filter is applied, so that the filter will be
+        # applied within the iterator rather than in the
+        # prefetch.
+        #
+        # This incidentally also showed that our prefetch
+        # cache wasn't being propagated down to sub querysets,
+        # so it acts as a regression test against that also.
+        qs = self.qs.clone()
+        _ = iter(qs)
+        qs = qs.filter(
+            name__glob='*.rst'
+        )[2:]
+
+        self.assertEqual(
+            [
+                'test3.rst',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_open_both(self):
+        qs = self.qs[:]
+
+        self.assertEqual(
+            [
+                'test1.md',
+                'test1.rst',
+                'test2.md',
+                'test2.rst',
+                'test3.rst',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_open_start(self):
+        qs = self.qs[:4]
+
+        self.assertEqual(
+            [
+                'test1.md',
+                'test1.rst',
+                'test2.md',
+                'test2.rst',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_open_end(self):
+        qs = self.qs[1:]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.md',
+                'test2.rst',
+                'test3.rst',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_closed(self):
+        qs = self.qs[1:3]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.md',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_sliced_slice1(self):
+        qs = self.qs[1:4][:2]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.md',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_sliced_slice2(self):
+        qs = self.qs[1:3][:4]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.md',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_sliced_slice3(self):
+        qs = self.qs[:2][1:4]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.md',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_sliced_slice4(self):
+        qs = self.qs[1:4][1:3]
+
+        self.assertEqual(
+            [
+                'test2.md',
+                'test2.rst',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_step(self):
+        qs = self.qs[1::2]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.rst',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_sliced_step1(self):
+        qs = self.qs[1::2][:1]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_sliced_step2(self):
+        qs = self.qs[1::2][::]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.rst',
+            ],
+            [ o.name for o in qs ],
+        )
+
+    def test_sliced_step3(self):
+        qs = self.qs[1:][::2]
+
+        self.assertEqual(
+            [
+                'test1.rst',
+                'test2.rst',
+            ],
+            [ o.name for o in qs ],
+        )

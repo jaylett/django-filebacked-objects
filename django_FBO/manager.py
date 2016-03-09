@@ -91,6 +91,8 @@ OPTS = [
     'storage',
     '_filters',
     '_order_by',
+    '_slice',
+    '_fetched',
 ]
 
 
@@ -107,6 +109,7 @@ class FBO:
 
     _filters = None
     _order_by = None
+    _slice = None
 
     def __init__(self, **kwargs):
         self._fetched = None
@@ -146,14 +149,80 @@ class FBO:
         for opt in OPTS:
             val = getattr(self, opt)
             if val is not None:
+                if opt == '_slice':
+                    if kwargs['_slice'] is None:
+                        kwargs['_slice'].setdfeault(val)
+                    else:
+                        # merge with existing slice
+                        def _combine_start(one, two):
+                            if one.start is None:
+                                s1 = 0
+                            else:
+                                s1 = one.start
+                            if two.start is None:
+                                s2 = 0
+                            else:
+                                s2 = two.start
+                            return s1 + s2
+
+                        def _combine_stop(one, two):
+                            # stop is an index, not an offset
+                            # so we have to take start into account
+                            if one.stop is None and two.stop is None:
+                                return None
+                            elif two.stop is None:
+                                # it's one.stop, adjusted for start
+                                # change if there was one
+                                if two.start is None:
+                                    return one.stop
+                                else:
+                                    return one.stop + two.start
+                            elif one.stop is None:
+                                # it's two.stop, adjusted as above
+                                if one.start is None:
+                                    return two.stop
+                                else:
+                                    return two.stop + one.start
+                            else:
+                                # both have stop, so adjust and take
+                                # the minimum
+                                if two.start is None:
+                                    s1 = one.stop
+                                else:
+                                    s1 = one.stop + two.start
+                                if one.start is None:
+                                    s2 = two.stop
+                                else:
+                                    s2 = two.stop + one.start
+                                return min(s1, s2)
+
+                        def _combine_step(one, two):
+                            if one.step is None:
+                                s1 = 1
+                            else:
+                                s1 = one.step
+                            if two.step is None:
+                                s2 = 1
+                            else:
+                                s2 = two.step
+                            return s1 * s2
+
+                        #print(val, 'merge', kwargs['_slice'])
+                        kwargs['_slice'] = slice(
+                            _combine_start(val, kwargs['_slice']),
+                            _combine_stop(val, kwargs['_slice']),
+                            _combine_step(val, kwargs['_slice']),
+                        )
+                        #print('now', kwargs['_slice'])
                 # Lists must be duplicated, not just copied by
                 # reference, otherwise if we mutate them in-place
                 # in the clone it will affect the parent. This is
                 # particularly bad if you reuse FBO objects, which
                 # you probably will for instance in generic CBVs.
-                if isinstance(val, collections.Iterable):
-                    val = val[:]
-                kwargs.setdefault(opt, val)
+                elif isinstance(val, collections.Iterable):
+                    kwargs.setdefault(opt, val[:])
+                else:
+                    kwargs.setdefault(opt, val)
         # cached data
         kwargs['_fetched'] = self._fetched
         return type(self)(**kwargs)
@@ -182,6 +251,14 @@ class FBO:
         return self.count()
     
     def __getitem__(self, idx):
+        if isinstance(idx, slice):
+            if (
+                idx.start is not None and idx.start < 0
+            ) or (
+                idx.stop is not None and idx.stop < 0
+            ):
+                raise ValueError("Cannot use negative indexes with FBO.")
+            return self.clone(_slice=idx)
         _iter = iter(self)
         for i in range(0, idx+1):
             obj = next(_iter)
@@ -235,11 +312,17 @@ class FBO:
         # our cached fetched data around, to avoid hitting
         # the filesystem so much
         #print("__iter__()")
+        _filtered = []
         for _file in _objects:
             #print("Considering %s" % _file)
             if self._check_filters(_file):
                 #print("  matches filters.")
-                yield _file
+                _filtered.append(_file)
+        if self._slice is not None:
+            #print('sliced', self._slice, [o.name for o in _filtered])
+            _filtered = _filtered.__getitem__(self._slice)
+            #print('now', [o.name for o in _filtered])
+        return iter(_filtered)
 
     def _check_filters(self, _file):
         for _filter in self._filters:
