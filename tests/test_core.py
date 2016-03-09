@@ -110,6 +110,37 @@ class TestGet(TestCase):
                 name='test1.rst',
             )
 
+    def test_get_by_index(self):
+        """Can fetch a single instance by subscript."""
+
+        qs = FBO(
+            path=TEST_FILES_ROOT,
+        ).exclude(
+            name__glob='*~',
+        ).exclude(
+            name__glob='*.meta',
+        ).order_by('name')
+
+        obj = qs[0]
+        self.assertEqual(
+            'test1.md',
+            obj.name,
+        )
+
+    def test_get_by_indexerror(self):
+        """Get an IndexError if we go off the end."""
+
+        qs = FBO(
+            path=TEST_FILES_ROOT,
+        ).exclude(
+            name__glob='*~',
+        ).exclude(
+            name__glob='*.meta',
+        ).order_by('name')
+
+        with self.assertRaises(IndexError):
+            obj = qs[6]
+
     def test_multiple(self):
         """Can't get if we resolve multiple objects."""
 

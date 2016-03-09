@@ -260,8 +260,11 @@ class FBO:
                 raise ValueError("Cannot use negative indexes with FBO.")
             return self.clone(_slice=idx)
         _iter = iter(self)
-        for i in range(0, idx+1):
-            obj = next(_iter)
+        try:
+            for i in range(0, idx+1):
+                obj = next(_iter)
+        except StopIteration:
+            raise IndexError(idx)
         return obj
     
     def order_by(self, *args):
