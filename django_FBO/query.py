@@ -87,6 +87,12 @@ def lte(field, field_val, filter_val):
 def gte(field, field_val, filter_val):
     return field_val >= filter_val
 
+def lt(field, field_val, filter_val):
+    return field_val < filter_val
+
+def gt(field, field_val, filter_val):
+    return field_val > filter_val
+
 def contains(field, field_val, filter_val):
     return filter_val in field_val
 
@@ -98,6 +104,8 @@ Operators = {
     'equals': equals,
     'lte': lte,
     'gte': gte,
+    'lt': lt,
+    'gt': gt,
     'contains': contains,
     'in': in_operator,
 }
