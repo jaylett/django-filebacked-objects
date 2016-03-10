@@ -41,12 +41,17 @@ new.
     else:
         print("No objects found.")
 
+But a lot of the time you want to use one of the bundled modules,
+perhaps with some light overriding, to provide the views needed for
+your site.
+
 ## TODO
 
  * metadata from detached file (with auto-detection of format?)
  * tests for metadata from detached file
  * tests for .none(), .exists()
  * tests for .datetimes()
+ * tests for blog, posts modules
  * real documentation!
  * MetadataInFileHead is somewhat ponderous
  * Options/_meta actually overridable etc

@@ -9,6 +9,7 @@ setup(
     description="Access file-backed objects in something resembling the ORM.",
     packages=[
         'django_FBO',
+        'django_FBO.modules',
     ],
     license='MIT',
     author='James Aylett',
