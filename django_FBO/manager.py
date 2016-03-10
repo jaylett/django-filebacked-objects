@@ -1,10 +1,9 @@
 import collections
-import json
 from operator import attrgetter
-import yaml
 from django.contrib.staticfiles import utils
 from django.core.files.storage import FileSystemStorage
 
+from .file_objects import FileObject
 from .query import Q
 
 
@@ -14,74 +13,6 @@ class DoesNotExist(Exception):
 
 class MultipleObjectsReturned(Exception):
     pass
-
-
-class FileObject:
-    DoesNotExist = DoesNotExist
-    class _meta:
-        verbose_name = 'FileObjects'
-
-    def __init__(self, storage, metadata_location, name):
-        self.storage = storage
-        self.metadata_location = metadata_location
-        self.name = name
-        self.path = storage.path(name=name)
-        self._metadata = None
-
-    @property
-    def metadata(self):
-        if self._metadata is None:
-            self._metadata = self._load_metadata()
-        return self._metadata
-
-    def _load_content(self):
-        with self.storage.open(self.name) as _file:
-            return _file.read().decode('utf-8')
-
-    def _load_metadata(self):
-        self.content = self._load_content()
-        if self.metadata_location == FBO.MetadataInFileHead:
-            if self.content.startswith('{\n'):
-                # JSON!
-                end = self.content.find('}\n')
-                if end!=-1:
-                    blob = self.content[:end+2]
-                    self.content = self.content[end+2:]
-                    data = json.loads(blob)
-                    return data
-            elif self.content.startswith('---\n'):
-                # YAML!
-                # Magic numbers: 4 is skipping the intro ---\n,
-                # 8 is skipping both intro and outro ---\n.
-                end = self.content[4:].find('---\n')
-                if end!=-1:
-                    blob = self.content[4:end+4]
-                    self.content = self.content[end+8:]
-                    data = yaml.load(blob)
-                    return data
-            else:
-                # Implicit YAML if ':' before \n\n
-                colon_idx = self.content.find(':')
-                sep_idx = self.content.find('\n\n')
-                # If sep_idx is -1 or both are, first leg won't pass
-                if colon_idx < sep_idx and colon_idx != -1:
-                    # YAML!
-                    blob = self.content[:sep_idx]
-                    self.content = self.content[sep_idx+2:]
-                    data = yaml.load(blob)
-                    return data
-        return {}
-
-    def __getattr__(self, key):
-        # if we are asked for content before any metadata,
-        # need to load it
-        if key == 'content':
-            _ = self.metadata
-            return self.content
-        return self.metadata[key]
-
-    def __str__(self):
-        return self.name
 
 
 OPTS = [
@@ -97,7 +28,6 @@ OPTS = [
 
 
 class FBO:
-    MetadataInFileHead = True
     DoesNotExist = DoesNotExist
     MultipleObjectsReturned = MultipleObjectsReturned
 

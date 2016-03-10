@@ -193,7 +193,7 @@ class TestOrdering(TestCase):
         qs = FBO(
             path=TEST_FILES_ROOT,
             glob='*.rst',
-            metadata=FBO.MetadataInFileHead,
+            metadata=FileObject.MetadataInFileHead,
         ).all()
 
         self.assertEqual(
@@ -256,7 +256,7 @@ class TestObjects(TestCase):
 
         obj = FBO(
             path=TEST_FILES_ROOT,
-            metadata=FBO.MetadataInFileHead,
+            metadata=FileObject.MetadataInFileHead,
         ).all().get(
             name='test3.rst',
         )
@@ -299,7 +299,7 @@ class TestMetadataFormats(TestCase):
         obj = FBO(
             path=TEST_FILES_ROOT,
             glob='*.rst',
-            metadata=FBO.MetadataInFileHead,
+            metadata=FileObject.MetadataInFileHead,
         ).all().get(
             name='test3.rst',
         )
@@ -319,7 +319,7 @@ class TestMetadataFormats(TestCase):
         obj = FBO(
             path=TEST_FILES_ROOT,
             glob='*.rst',
-            metadata=FBO.MetadataInFileHead,
+            metadata=FileObject.MetadataInFileHead,
         ).all().get(
             name='test1.rst',
         )
@@ -339,7 +339,7 @@ class TestMetadataFormats(TestCase):
         obj = FBO(
             path=TEST_FILES_ROOT,
             glob='*.rst',
-            metadata=FBO.MetadataInFileHead,
+            metadata=FileObject.MetadataInFileHead,
         ).all().get(
             name='test2.rst',
         )
@@ -379,7 +379,7 @@ class TestConvenience(TestCase):
 
         obj = FBO(
             path=TEST_FILES_ROOT,
-            metadata=FBO.MetadataInFileHead,
+            metadata=FileObject.MetadataInFileHead,
         ).objects.all().filter(
             name__glob='*.rst',
         ).get(
@@ -413,7 +413,7 @@ class TestSubclassing(TestCase):
 
         class MyFBO(FBO):
             path = '/tmp/'
-            metadata = FBO.MetadataInFileHead
+            metadata = FileObject.MetadataInFileHead
             glob='*.rst'
 
         qs = MyFBO(
@@ -437,7 +437,7 @@ class TestSubclassing(TestCase):
 
         class MyFBO(FBO):
             path = TEST_FILES_ROOT
-            metadata = FBO.MetadataInFileHead
+            metadata = FileObject.MetadataInFileHead
             model = MyModel
 
         self.assertEqual(
