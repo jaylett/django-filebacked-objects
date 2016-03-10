@@ -45,6 +45,8 @@ new.
 
  * metadata from detached file (with auto-detection of format?)
  * tests for metadata from detached file
+ * tests for .none(), .exists()
+ * tests for .datetimes()
  * real documentation!
  * MetadataInFileHead is somewhat ponderous
  * Options/_meta actually overridable etc

@@ -1,7 +1,9 @@
 import collections
 from operator import attrgetter
+from django.conf import settings
 from django.contrib.staticfiles import utils
 from django.core.files.storage import FileSystemStorage
+from django.utils import timezone
 
 from .file_objects import FileObject
 from .query import Q
@@ -163,6 +165,42 @@ class FBO:
 
     def all(self):
         return self.clone()
+
+    def none(self):
+        return self.filter(name=False)
+
+    def exists(self):
+        return self.count() > 0
+
+    def datetimes(self, field_name, kind, ordering, tzinfo=None):
+        if settings.USE_TZ:
+            if tzinfo is None:
+                tzinfo = timezone.get_current_timezone()
+        else:
+            tzinfo = None
+
+        datetimes = set()
+        for obj in iter(self):
+            dt = getattr(obj, field_name)
+            reset = {
+                'month': 1,
+                'day': 1,
+                'hour': 0,
+                'minute': 0,
+                'second': 0,
+                'microsecond': 0,
+            }
+            for _kind in 'year', 'month', 'day', 'hour', 'minute', 'second':
+                if _kind in reset.keys():
+                    del reset[_kind]
+                if _kind == kind:
+                    break
+            datetimes.add(dt.replace(**reset))
+
+        if ordering == 'ASC':
+            return sorted(datetimes)
+        else:
+            return sorted(datetimes, reverse=True)
 
     def _add_q(self, q_object):
         self._filters.append(q_object)
