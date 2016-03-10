@@ -9,6 +9,10 @@ from .file_objects import FileObject
 from .query import Q
 
 
+# FIXME: these should be the ORM ones, because otherwise
+# Django's generic CBVs don't convert DoesNotExist -> 404.
+# (Arguably they should scope to self.model.DoesNotExist,
+# but that's a different issue.)
 class DoesNotExist(Exception):
     pass
 
