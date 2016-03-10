@@ -2,3 +2,5 @@
 *.pyc
 /MANIFEST
 /dist
+*~
+/build/
