@@ -1,3 +1,7 @@
+from django.core.exceptions import (
+    ObjectDoesNotExist,
+    MultipleObjectsReturned,
+)
 from django.db.models.fields import TextField
 import json
 import yaml
@@ -46,6 +50,8 @@ class FileObjectMeta(type):
 
 class FileObject(metaclass=FileObjectMeta):
     MetadataInFileHead = True
+    DoesNotExist = ObjectDoesNotExist
+    MultipleObjectsReturned = MultipleObjectsReturned
 
     def __init__(self, storage, metadata_location, name):
         self.storage = storage

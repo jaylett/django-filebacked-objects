@@ -9,18 +9,6 @@ from .file_objects import FileObject
 from .query import Q
 
 
-# FIXME: these should be the ORM ones, because otherwise
-# Django's generic CBVs don't convert DoesNotExist -> 404.
-# (Arguably they should scope to self.model.DoesNotExist,
-# but that's a different issue.)
-class DoesNotExist(Exception):
-    pass
-
-
-class MultipleObjectsReturned(Exception):
-    pass
-
-
 OPTS = [
     'path',
     'metadata',
@@ -34,9 +22,6 @@ OPTS = [
 
 
 class FBO:
-    DoesNotExist = DoesNotExist
-    MultipleObjectsReturned = MultipleObjectsReturned
-
     storage = FileSystemStorage
     path = None
     metadata = None
@@ -246,9 +231,9 @@ class FBO:
         filtered = self.clone().filter(*args, **kwargs)
         _count = filtered.count()
         if _count == 0:
-            raise self.DoesNotExist
+            raise self.model.DoesNotExist
         elif _count > 1:
-            raise self.MultipleObjectsReturned
+            raise self.model.MultipleObjectsReturned
         else:
             return filtered[0]
     

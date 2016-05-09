@@ -1,4 +1,8 @@
 import os.path
+from django.core.exceptions import (
+    ObjectDoesNotExist,
+    MultipleObjectsReturned,
+)
 from django.test import SimpleTestCase as TestCase
 
 from django_FBO import FBO, FileObject
@@ -102,7 +106,7 @@ class TestGet(TestCase):
     def test_get_honours_glob(self):
         """Cannot get not matching the glob."""
 
-        with self.assertRaises(FBO.DoesNotExist):
+        with self.assertRaises(ObjectDoesNotExist):
             qs = FBO(
                 path=TEST_FILES_ROOT,
                 glob='*.md',
@@ -144,11 +148,11 @@ class TestGet(TestCase):
     def test_multiple(self):
         """Can't get if we resolve multiple objects."""
 
-        with self.assertRaises(FBO.MultipleObjectsReturned):
+        with self.assertRaises(MultipleObjectsReturned):
             _ = RST_FBO().get()
 
     def test_missing(self):
-        with self.assertRaises(FBO.DoesNotExist):
+        with self.assertRaises(ObjectDoesNotExist):
             FBO(
                 path=TEST_FILES_ROOT,
             ).all().get(
