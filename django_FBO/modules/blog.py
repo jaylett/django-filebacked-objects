@@ -238,7 +238,7 @@ urlpatterns = [
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]+)/$', MonthArchiveView.as_view()),
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]+)/(?P<day>[0-9]+)/$', DayArchiveView.as_view()),
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]+)/(?P<day>[0-9]+)/(?P<slug>.*)/$', DetailView.as_view(), name='blog-detail'),
-    url(r'^index.atom/$', BlogFeed.as_view(
+    url(r'^index.atom$', BlogFeed.as_view(
         feed_title = settings.FBO_BLOG_TITLE,
         feed_subtitle = settings.FBO_BLOG_SUBTITLE,
         feed_copyright = settings.FBO_BLOG_COPYRIGHT,
