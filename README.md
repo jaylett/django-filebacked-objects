@@ -51,7 +51,7 @@ your site.
  * tests for metadata from detached file
  * tests for .none(), .exists()
  * tests for .datetimes()
- * tests for blog, posts modules
+ * tests for blog module
  * real documentation!
  * MetadataInFileHead is somewhat ponderous
  * Options/_meta actually overridable etc
