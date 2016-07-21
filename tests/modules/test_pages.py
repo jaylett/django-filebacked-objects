@@ -79,3 +79,27 @@ class TestPageView(TestCase):
             b'My little page: Just something simple.',
             resp.content.strip(),
         )
+
+    def test_baking(self):
+        """Test that we can bake pages."""
+
+
+        with tempfile.TemporaryDirectory() as outdir:
+            storage = FileSystemStorage(location=outdir)
+            bake(outdir)
+            # We should have index.html and slug1.html
+            EXPECTED_FILES = { 'index.html', 'slug1/index.html' }
+            self.assertEqual(
+                EXPECTED_FILES,
+                set(utils.get_files(storage)),
+            )
+
+            for fname in EXPECTED_FILES:
+                with open(
+                    os.path.join(outdir, fname),
+                    'rb',
+                ) as fp:
+                    self.assertEqual(
+                        b'My little page: Just something simple.',
+                        fp.read().strip(),
+                    )

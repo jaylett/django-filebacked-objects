@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 PACKAGE = 'django_FBO'
-VERSION = '0.2'
+VERSION = '0.3'
 
 setup(
     name=PACKAGE,
