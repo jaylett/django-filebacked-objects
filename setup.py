@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 
 PACKAGE = 'django_FBO'
-VERSION = '0.3'
+VERSION = '0.4'
 
 setup(
     name=PACKAGE,
