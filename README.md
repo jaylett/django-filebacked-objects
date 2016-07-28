@@ -62,8 +62,10 @@ Django 1.9, Python 3. A file system.
 
 ## Contact
 
-This is very early days for this; feedback welcome.
+This is very early days for this; feedback welcome via the [github
+project page].
 
-James Aylett
-http://tartarus.org/james/
-https://github.com/jaylett/django-filebacked-objects
+[James Aylett]
+
+[James Aylett]: http://tartarus.org/james/
+[github project page]: https://github.com/jaylett/django-filebacked-objects
