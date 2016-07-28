@@ -10,7 +10,7 @@ INSTALLED_APPS = [
 ROOT_DIR = os.path.dirname(__file__)
 BASE_DIR = os.path.join(
     ROOT_DIR,
-    'tests/files',
+    'modules/files',
 )
 DATABASES = {
     'default': {
@@ -31,3 +31,8 @@ TEMPLATES = [
         },
     },
 ]
+FBO_BLOG_TITLE = 'Blog title'
+FBO_BLOG_SUBTITLE = 'Blog subtitle'
+FBO_BLOG_COPYRIGHT = 'Blog copyright'
+USE_TZ = True
+TIME_ZONE = 'UTC'

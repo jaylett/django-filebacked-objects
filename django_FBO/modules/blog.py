@@ -15,7 +15,7 @@ from django.views.generic import (
     DayArchiveView as _DayArchiveView,
 )
 from markdown_deux import markdown
-from .. import FBO, FileObject, Q
+from .. import FBO, FileObject, Q, Bakeable
 
 
 class Author(object):
@@ -58,11 +58,14 @@ class BlogPostFile(FileObject):
         # to published
         try:
             year, month, day, _ = self.name.split('/', 4)
-            return datetime(
+            return timezone.now().replace(
                 year=int(year),
                 month=int(month),
                 day=int(day),
-                tzinfo=timezone.utc,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0,
             )
         except:
             return self.published
@@ -84,43 +87,126 @@ class BlogPost(FBO):
     model = BlogPostFile
 
 
-class ArchiveIndexView(_ArchiveIndexView):
+class BakeableBlogMixin(Bakeable):
     template_name = 'blog/index.html'
     queryset = BlogPost()
     date_field = 'date'
     uses_datetime_field = True
     paginate_by = 10
-
-
-class YearArchiveView(_YearArchiveView):
-    template_name = 'blog/index.html'
-    queryset = BlogPost()
-    date_field = 'date'
-    uses_datetime_field = True
-    month_format = '%m'
     make_object_list = True
-    paginate_by = 10
+
+    def get_url_name(self):
+        return self.url_name
+
+    def _paginate_for_baking(self, qs, date):
+        page_size = self.get_paginate_by(qs)
+        if page_size:
+            self.kwargs = { 'page': 1 }
+            paginator, page, queryset, is_paginated = self.paginate_queryset(qs, page_size)
+            for page in range(paginator.num_pages):
+                yield self.date_to_url(date, page+1)
+        else:
+            yield self.date_to_url(date)
+
+    def get_date_to_url_kwargs(self, date):
+        raise NotImplementedError
+
+    def date_to_url(self, date, page=None):
+        kwargs = self.get_date_to_url_kwargs(date)
+        if page is None or page == 1:
+            return reverse(
+                self.get_url_name(),
+                kwargs=kwargs,
+            )
+        else:
+            kwargs['page'] = page
+            return reverse(
+                self.get_url_name() + '-paginated',
+                kwargs=kwargs,
+            )
 
 
-class MonthArchiveView(_MonthArchiveView):
-    template_name = 'blog/index.html'
-    queryset = BlogPost()
-    date_field = 'date'
-    uses_datetime_field = True
+class ArchiveIndexView(BakeableBlogMixin, _ArchiveIndexView):
+    url_name = 'blog-index'
+
+    def get_paths(self):
+        return self._paginate_for_baking(
+            self.get_queryset(),
+            timezone.now(),
+        )
+
+    def get_date_to_url_kwargs(self, date):
+        return {}
+
+
+class BakeableBlogDateMixin(BakeableBlogMixin):
     month_format = '%m'
-    paginate_by = 10
+
+    def get_date_list_period_for_baking(self):
+        period = self.get_url_name()
+        if period.startswith('blog-'):
+            period = period[5:]
+        return period
+
+    def get_paths(self):
+        # Marvel at how much duplication there is between this and the
+        # CBV date system! All the fun of millions of classes, without
+        # the extension hooks you actually need.
+        kind = self.get_date_list_period_for_baking()
+
+        for date in self.get_queryset().datetimes(
+            field_name=self.get_date_field(),
+            kind=kind,
+            ordering='ASC',
+        ):
+            # For each date, paginate!
+            date_field = self.get_date_field()
+            since = self._make_date_lookup_arg(date)
+            # _get_next_year, _get_next_month, _get_next_day
+            until = self._make_date_lookup_arg(
+                getattr(self, '_get_next_' + kind)(date)
+            )
+            lookup_kwargs = {
+                '%s__gte' % date_field: since,
+                '%s__lt' % date_field: until,
+            }
+            qs = self.get_dated_queryset(**lookup_kwargs)
+            for path in self._paginate_for_baking(qs, date):
+                yield path
 
 
-class DayArchiveView(_DayArchiveView):
-    template_name = 'blog/index.html'
-    queryset = BlogPost()
-    date_field = 'date'
-    uses_datetime_field = True
-    month_format = '%m'
-    paginate_by = 10
+class YearArchiveView(BakeableBlogDateMixin, _YearArchiveView):
+    url_name = 'blog-year'
+
+    def get_date_to_url_kwargs(self, date):
+        return {
+            'year': '%04d' % date.year,
+        }
 
 
-class DetailView(_DetailView):
+class MonthArchiveView(BakeableBlogDateMixin, _MonthArchiveView):
+    url_name = 'blog-month'
+
+    def get_date_to_url_kwargs(self, date):
+        return {
+            'year': '%04d' % date.year,
+            'month': '%02d' % date.month,
+        }
+
+
+class DayArchiveView(BakeableBlogDateMixin, _DayArchiveView):
+    url_name = 'blog-day'
+
+    def get_date_to_url_kwargs(self, date):
+        return {
+            'year': '%04d' % date.year,
+            'month': '%02d' % date.month,
+            'day': '%02d' % date.day,
+        }
+
+
+# FIXME: do this using DateDetailView?
+class DetailView(Bakeable, _DetailView):
     template_name = 'blog/post.html'
     queryset = BlogPost()
 
@@ -134,6 +220,14 @@ class DetailView(_DetailView):
             self.kwargs.get('slug', None),
         )
         return queryset.get(name=name)
+
+    def get_paths(self):
+        # Remember that get_absolute_url() doesn't return
+        # an absolute URL, just netloc-relative.
+        return [
+            p.get_absolute_url()
+            for p in self.queryset.all()
+        ]
 
 
 class BetterAtomFeed(Atom1Feed):
@@ -234,10 +328,14 @@ class BlogFeed(FeedMixin, ArchiveIndexView):
 # any of the view defaults.
 urlpatterns = [
     url(r'^$', ArchiveIndexView.as_view(), name='blog-index'),
-    url(r'^(?P<year>[0-9]{4})/$', YearArchiveView.as_view()),
-    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]+)/$', MonthArchiveView.as_view()),
-    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]+)/(?P<day>[0-9]+)/$', DayArchiveView.as_view()),
-    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]+)/(?P<day>[0-9]+)/(?P<slug>.*)/$', DetailView.as_view(), name='blog-detail'),
+    url(r'^p(?P<page>[0-9]+)/$', ArchiveIndexView.as_view(), name='blog-index-paginated'),
+    url(r'^(?P<year>[0-9]{4})/$', YearArchiveView.as_view(), name='blog-year'),
+    url(r'^(?P<year>[0-9]{4})/p(?P<page>[0-9]+)/$', YearArchiveView.as_view(), name='blog-year-paginated'),
+    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', MonthArchiveView.as_view(), name='blog-month'),
+    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/p(?P<page>[0-9]+)/$', MonthArchiveView.as_view(), name='blog-month-paginated'),
+    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$', DayArchiveView.as_view(), name='blog-day'),
+    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/p(?P<page>[0-9]+)/$', DayArchiveView.as_view(), name='blog-day-paginated'),
+    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/(?P<slug>.*)/$', DetailView.as_view(), name='blog-detail'),
     url(r'^index.atom$', BlogFeed.as_view(
         feed_title = settings.FBO_BLOG_TITLE,
         feed_subtitle = settings.FBO_BLOG_SUBTITLE,
