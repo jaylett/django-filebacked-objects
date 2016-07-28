@@ -13,6 +13,8 @@ setup(
     packages=[
         'django_FBO',
         'django_FBO.modules',
+        'django_FBO.management',
+        'django_FBO.management.commands',
     ],
     license='MIT',
     author='James Aylett',
