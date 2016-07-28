@@ -6,6 +6,7 @@ from django.core.urlresolvers import (
     RegexURLPattern,
     RegexURLResolver,
 )
+from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
 import os
 import os.path
@@ -22,6 +23,7 @@ class Bakeable:
         bake, otherwise bake all paths possible for this
         view (generally must be implemented by the view).
         """
+
         if output_dir is None:
             output_dir = settings.FBO_BUILD_DIR
         if paths is None:
@@ -43,7 +45,8 @@ class Bakeable:
                     *match.args,
                     **match.kwargs,
                 )
-                response.render()
+                if isinstance(response, SimpleTemplateResponse):
+                    response.render()
                 if response.status_code // 100 == 2:
                     if response.streaming:
                         # FIXME: do something with this.
