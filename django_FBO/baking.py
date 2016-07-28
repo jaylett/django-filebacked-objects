@@ -120,7 +120,14 @@ def bake(output_dir=None, resolver=None):
                     # get right. You must provide a name for this
                     # to work; otherwise we SILENTLY do nothing, which
                     # isn't friendly.
+                    #
+                    # Note this may mean that we write something out
+                    # twice. This really shouldn't cause problems,
+                    # although it probably will at some point.
                     if resolver.name is not None:
-                        view_instance.bake(output_dir, reverse(resolver.name))
+                        view_instance.bake(
+                            output_dir,
+                            [reverse(resolver.name)],
+                        )
                 else:
                     view_instance.bake(output_dir)
