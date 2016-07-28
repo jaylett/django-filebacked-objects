@@ -75,12 +75,10 @@ class Bakeable:
         if path.startswith('/'):
             # Which should be always!
             fname = path[1:]
-        else:
+        elif path!='':
             raise ValueError("Path should start with '/'.")
         if fname == '' or fname.endswith('/'):
-            fname = fname + 'index'
-        if not fname.endswith('.html'):
-            fname = fname + '.html'
+            fname = fname + 'index.html'
         return fname
 
     def get_paths(self):
