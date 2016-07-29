@@ -43,7 +43,7 @@ class Bakeable:
                 response = match.func(
                     request,
                     *match.args,
-                    **match.kwargs,
+                    **match.kwargs
                 )
                 if isinstance(response, SimpleTemplateResponse):
                     response.render()
