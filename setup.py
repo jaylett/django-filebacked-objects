@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 
 PACKAGE = 'django_FBO'
-VERSION = '0.6'
+VERSION = '1.0.0'
 
 setup(
     name=PACKAGE,
@@ -20,7 +20,7 @@ setup(
     author='James Aylett',
     author_email='james@tartarus.org',
     install_requires=[
-        'Django~=1.9.8',
+        'Django~=1.10',
         'PyYAML~=3.11',
     ],
     url = 'https://github.com/jaylett/django-filebacked-objects',
