@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load markdown_deux_tags %}
+
+{% block head_title_page %}My blog{% endblock %}
+
+{% block content %}
+<article>
+{% if object.author %}
+  <p class='dateline'>{{ object.author }}, {{ object.date|date:"l jS F, Y" }}</p>
+{% elif object.date %}
+  <p class='dateline'>{{ object.date|date:"l jS F, Y" }}</p>
+{% endif %}
+{{ object.content|markdown }}
+</article>
+{% endblock %}

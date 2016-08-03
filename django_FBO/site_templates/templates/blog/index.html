@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load markdown_deux_tags %}
+
+{% block head_title_page %}My blog{% endblock %}
+{% block page_title %}Jetblog{% endblock %}
+
+{% block content %}
+
+{% include "blog/_pagination.html" %}
+
+{% for object in object_list %}
+<article>
+<h1><a href='{{ object.get_absolute_url }}'>{{ object.title }}</a></h1>
+{% if object.author %}
+  <p class='dateline'>{{ object.author }}, {{ object.date|date:"l jS F, Y" }}</p>
+{% elif object.date %}
+  <p class='dateline'>{{ object.date|date:"l jS F, Y" }}</p>
+{% endif %}
+
+{{ object.content|markdown }}
+</article>
+{% endfor %}
+
+{% include "blog/_pagination.html" %}
+
+{% endblock %}

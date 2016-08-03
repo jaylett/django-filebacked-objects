@@ -1,0 +1,15 @@
+{% extends "cape/base.html" %}
+{% load staticfiles %}
+
+{% block head_title_sitename %}@@SITENAME@@{% endblock %}
+{% block head_title_page %}{{ object.title }}{% endblock %}
+{% block head_css_stylesheet %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block body_sheath %}
+{% block page_title %}
+  <h1>{{ object.title }}</h1>
+{% endblock %}
+{% block content %}{% endblock %}
+{% endblock %}

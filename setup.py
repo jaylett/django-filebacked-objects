@@ -1,10 +1,7 @@
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
 PACKAGE = 'django_FBO'
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 
 setup(
     name=PACKAGE,
@@ -16,9 +13,23 @@ setup(
         'django_FBO.management',
         'django_FBO.management.commands',
     ],
+    package_data={
+        'django_FBO': [
+            'site_templates/*.py',
+            'site_templates/requirements.txt',
+            'site_templates/static/css/*.css',
+            'site_templates/templates/*.html',
+            'site_templates/templates/blog/*.html',
+        ],
+    },
     license='MIT',
     author='James Aylett',
     author_email='james@tartarus.org',
+    entry_points={
+        'console_scripts': [
+            'django-FBO-newsite = django_FBO.__script__:newsite'
+        ],
+    },
     install_requires=[
         'Django~=1.10',
         'PyYAML~=3.11',
