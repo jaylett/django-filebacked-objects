@@ -27,11 +27,13 @@ class TestAll(TestCase):
         )
 
         self.assertEqual(
-            5,
+            7,
             qs.count(),
         )
         self.assertEqual(
             {
+                'index.md',
+                'subdir/index.md',
                 'test1.md',
                 'test2.md',
                 'test1.rst',
@@ -50,11 +52,13 @@ class TestAll(TestCase):
         ).all()
 
         self.assertEqual(
-            2,
+            4,
             qs.count(),
         )
         self.assertEqual(
             {
+                'index.md',
+                'subdir/index.md',
                 'test1.md',
                 'test2.md',
             },
@@ -127,7 +131,7 @@ class TestGet(TestCase):
 
         obj = qs[0]
         self.assertEqual(
-            'test1.md',
+            'index.md',
             obj.name,
         )
 
@@ -143,7 +147,7 @@ class TestGet(TestCase):
         ).order_by('name')
 
         with self.assertRaises(IndexError):
-            obj = qs[6]
+            obj = qs[10]
 
     def test_multiple(self):
         """Can't get if we resolve multiple objects."""
@@ -175,7 +179,7 @@ class TestOrdering(TestCase):
         ).all()
 
         self.assertEqual(
-            2,
+            4,
             qs.count(),
         )
         # Have to test this both ways so that however it
@@ -183,7 +187,7 @@ class TestOrdering(TestCase):
         # intrinsically, probably inode ordering) we'll get
         # a failure if our explicit ordering isn't applied.
         self.assertEqual(
-            'test1.md',
+            'index.md',
             qs.order_by('name')[0].name,
         )
         self.assertEqual(
@@ -493,6 +497,8 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
+                'index.md',
+                'subdir/index.md',
                 'test1.md',
                 'test1.rst',
                 'test2.md',
@@ -507,10 +513,10 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
+                'index.md',
+                'subdir/index.md',
                 'test1.md',
                 'test1.rst',
-                'test2.md',
-                'test2.rst',
             ],
             [ o.name for o in qs ],
         )
@@ -520,6 +526,8 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
+                'subdir/index.md',
+                'test1.md',
                 'test1.rst',
                 'test2.md',
                 'test2.rst',
@@ -533,8 +541,8 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
-                'test1.rst',
-                'test2.md',
+                'subdir/index.md',
+                'test1.md',
             ],
             [ o.name for o in qs ],
         )
@@ -544,8 +552,8 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
-                'test1.rst',
-                'test2.md',
+                'subdir/index.md',
+                'test1.md',
             ],
             [ o.name for o in qs ],
         )
@@ -555,8 +563,8 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
-                'test1.rst',
-                'test2.md',
+                'subdir/index.md',
+                'test1.md',
             ],
             [ o.name for o in qs ],
         )
@@ -566,8 +574,8 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
-                'test1.rst',
-                'test2.md',
+                'subdir/index.md',
+                'test1.md',
             ],
             [ o.name for o in qs ],
         )
@@ -577,8 +585,8 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
-                'test2.md',
-                'test2.rst',
+                'test1.md',
+                'test1.rst',
             ],
             [ o.name for o in qs ],
         )
@@ -588,6 +596,7 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
+                'subdir/index.md',
                 'test1.rst',
                 'test2.rst',
             ],
@@ -599,7 +608,7 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
-                'test1.rst',
+                'subdir/index.md',
             ],
             [ o.name for o in qs ],
         )
@@ -609,6 +618,7 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
+                'subdir/index.md',
                 'test1.rst',
                 'test2.rst',
             ],
@@ -620,6 +630,7 @@ class TestSlice(TestCase):
 
         self.assertEqual(
             [
+                'subdir/index.md',
                 'test1.rst',
                 'test2.rst',
             ],
