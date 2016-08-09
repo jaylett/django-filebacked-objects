@@ -21,6 +21,7 @@ TEST_TEMPLATES_DIR = os.path.join(
 
 class Page(pages.Page):
     path = TEST_BASE_DIR
+    slug_suffices = [ '.md' ]
 
 
 class TestPageObject(TestCase):
@@ -30,15 +31,27 @@ class TestPageObject(TestCase):
     # a test hierarchy for that.
 
     def test_simple(self):
-        pages = Page().objects.all()
-        self.assertEqual(1, pages.count())
+        pages = Page().objects.all().order_by('name')
+        self.assertEqual(3, pages.count())
+        # about, index, subdir/
         page = pages[0]
-        self.assertEqual('My little page', page.title)
-        self.assertEqual('Just something simple.', page.content.strip())
+        self.assertEqual('About', page.title)
+        self.assertEqual('About this.', page.content.strip())
+        self.assertEqual('about', page.slug)
 
-        _page = Page().objects.get(slug='slug1')
+        _page = Page().objects.get(slug='about')
         self.assertEqual(page.slug, _page.slug)
         self.assertEqual(page.path, _page.path)
+
+        page = pages[1]
+        self.assertEqual('Index that gets trimmed', page.title)
+        self.assertEqual('Index.', page.content.strip())
+        self.assertEqual('', page.slug)
+
+        page = pages[2]
+        self.assertEqual('Subdir!', page.title)
+        self.assertEqual('A subdir index.', page.content.strip())
+        self.assertEqual('subdir/', page.slug)
 
 
 class PageView(pages.PageView):
@@ -46,8 +59,7 @@ class PageView(pages.PageView):
 
 
 urlpatterns = [
-    url(r'^$', PageView.as_view(slug='slug1'), name='home'),
-    url(r'^(?P<slug>.*)/$', PageView.as_view(), name='page'),
+    url(r'^(?P<slug>.*)$', PageView.as_view(), name='page'),
 ]
 
 
@@ -66,40 +78,46 @@ class TestPageView(TestCase):
         self.assertEqual(200, resp.status_code)
         self.assertEqual('text/html; charset=utf-8', resp['Content-Type'])
         self.assertEqual(
-            b'My little page: Just something simple.',
+            b'slug=',
             resp.content.strip(),
         )
 
-        resp = self.client.get('/slug1')
-        self.assertEqual(301, resp.status_code)
-        resp = self.client.get(resp['Location'])
+        resp = self.client.get('/about')
         self.assertEqual(200, resp.status_code)
         self.assertEqual('text/html; charset=utf-8', resp['Content-Type'])
         self.assertEqual(
-            b'My little page: Just something simple.',
+            b'slug=about',
             resp.content.strip(),
         )
 
     def test_baking(self):
         """Test that we can bake pages."""
 
-
         with tempfile.TemporaryDirectory() as outdir:
             storage = FileSystemStorage(location=outdir)
             bake(outdir)
-            # We should have index.html and slug1.html
-            EXPECTED_FILES = { 'index.html', 'slug1/index.html' }
+            # We should have index.html, about/index.html, subdir/index.html
+            EXPECTED_FILES = [
+                'index.html',
+                'about.html',
+                'subdir/index.html',
+            ]
+            EXPECTED_SLUGS = [
+                '',
+                'about',
+                'subdir/',
+            ]
             self.assertEqual(
-                EXPECTED_FILES,
+                set(EXPECTED_FILES),
                 set(utils.get_files(storage)),
             )
 
-            for fname in EXPECTED_FILES:
+            for fname, slug in zip(EXPECTED_FILES, EXPECTED_SLUGS):
                 with open(
                     os.path.join(outdir, fname),
                     'rb',
                 ) as fp:
                     self.assertEqual(
-                        b'My little page: Just something simple.',
+                        b'slug=' + slug.encode('utf-8'),
                         fp.read().strip(),
                     )

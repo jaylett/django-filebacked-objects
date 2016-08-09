@@ -83,7 +83,7 @@ def newsite(args=None):
 from django_FBO.modules.pages import PageView
 """
             URLS += """
-    url(r'^(?P<slug>.*)/$', PageView.as_view(), name='page'),
+    url(r'^(?P<slug>.*)$', PageView.as_view(), name='page'),
 """
         if module == 'blog':
             URLS += """

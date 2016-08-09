@@ -74,12 +74,16 @@ class Bakeable:
         # FIXME: won't work with non-Unixoid file names.
         if path.startswith('/'):
             # Which should be always!
-            fname = path[1:]
+            path = path[1:]
         elif path!='':
             raise ValueError("Path should start with '/'.")
-        if fname == '' or fname.endswith('/'):
-            fname = fname + 'index.html'
-        return fname
+        components = path.split('/')
+        if components[-1] == '':
+            components[-1] = 'index'
+        if '.' not in components[-1]:
+            components[-1] += '.html'
+
+        return '/'.join(components)
 
     def get_paths(self):
         """

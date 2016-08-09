@@ -85,6 +85,8 @@ class BlogPost(FBO):
     ]
     metadata = BlogPostFile.MetadataInFileHead
     model = BlogPostFile
+    slug_suffices = getattr(settings, 'FBO_DEFAULT_SLUG_SUFFICES', None)
+    slug_strip_index = True
 
 
 class BakeableBlogMixin(Bakeable):

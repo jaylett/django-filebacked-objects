@@ -636,3 +636,60 @@ class TestSlice(TestCase):
             ],
             [ o.name for o in qs ],
         )
+
+
+class TestSlugStripping(TestCase):
+    """Can we use the slug stripping controls?"""
+
+    def test_slug_suffices(self):
+        """Can we support optional suffices on the slug within the filename?"""
+
+        qs = FBO(
+            path=TEST_FILES_ROOT,
+            slug_suffices=['.md'],
+        ).exclude(
+            name__glob='*~',
+        ).filter(
+            name__glob='*.md',
+        ).order_by(
+            'name'
+        )
+
+        self.assertEqual(
+            {
+                'index',
+                'subdir/index',
+                'test1',
+                'test2',
+            },
+            {
+                o.slug for o in qs
+            },
+        )
+
+    def test_slug_index_stripping(self):
+        """Can we strip 'index'?"""
+
+        qs = FBO(
+            path=TEST_FILES_ROOT,
+            slug_suffices=['.md'],
+            slug_strip_index=True,
+        ).exclude(
+            name__glob='*~',
+        ).filter(
+            name__glob='*.md',
+        ).order_by(
+            'name'
+        )
+
+        self.assertEqual(
+            {
+                '',
+                'subdir/',
+                'test1',
+                'test2',
+            },
+            {
+                o.slug for o in qs
+            },
+        )

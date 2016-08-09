@@ -13,6 +13,8 @@ OPTS = [
     'path',
     'metadata',
     'model',
+    'slug_suffices',
+    'slug_strip_index',
     'storage',
     '_filters',
     '_order_by',
@@ -26,6 +28,8 @@ class FBO:
     path = None
     metadata = None
     glob = None
+    slug_suffices = None
+    slug_strip_index = False
     model = FileObject
 
     _filters = None
@@ -59,7 +63,6 @@ class FBO:
         if self.path is None:
             raise TypeError("You must set a path for FBOs.")
 
-        #if isinstance(self.storage, str):
         self._storage = self.storage(
             location=self.path,
         )
@@ -249,7 +252,13 @@ class FBO:
             #print("Starting _prefetch")
             for fname in utils.get_files(self._storage):
                 #print("Found %s." % fname)
-                _file = self.model(self._storage, self.metadata, fname)
+                _file = self.model(
+                    self._storage,
+                    self.metadata,
+                    fname,
+                    self.slug_suffices,
+                    self.slug_strip_index,
+                )
                 if self._check_filters(_file):
                     #print("  matches filters")
                     self._fetched.append(_file)

@@ -24,6 +24,8 @@ class Page(FBO):
     ]
     metadata = FileObject.MetadataInFileHead
     model = PageFile
+    slug_suffices = getattr(settings, 'FBO_DEFAULT_SLUG_SUFFICES', None)
+    slug_strip_index = True
 
 
 class PageView(Bakeable, DetailView):

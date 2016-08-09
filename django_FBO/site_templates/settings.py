@@ -79,6 +79,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'build', 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# By default, strip .md from slugs (so something.md -> something)
+#
+# Note that this means that for Pages, having pages/about will
+# response to /about (given the default URL configuration), which will
+# bake to .../about.html and will require something like Apache's
+# Options +MultiViews to serve properly. If you can't set things up
+# that way, then use pages/about/index.md and you'll get /about/ and
+# .../about/index.html, which only requires Options +Indexes or
+# similar.
+#
+# The default is None, ie don't strip any slug suffices. (index will
+# still be stripped though.)
+FBO_DEFAULT_SLUG_SUFFICES = [ '.md' ]
 # Where do we bake FBO to?
 FBO_BUILD_DIR = os.path.join(BASE_DIR, 'build')
 

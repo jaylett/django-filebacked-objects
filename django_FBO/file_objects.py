@@ -53,11 +53,20 @@ class FileObject(metaclass=FileObjectMeta):
     DoesNotExist = ObjectDoesNotExist
     MultipleObjectsReturned = MultipleObjectsReturned
 
-    def __init__(self, storage, metadata_location, name):
+    def __init__(
+        self,
+        storage,
+        metadata_location,
+        name,
+        slug_suffices=None,
+        slug_strip_index=None,
+    ):
         self.storage = storage
         self.metadata_location = metadata_location
         self.name = name
         self.path = storage.path(name=name)
+        self.slug_suffices = slug_suffices
+        self.slug_strip_index = slug_strip_index
         self._metadata = None
 
     @property
@@ -68,8 +77,36 @@ class FileObject(metaclass=FileObjectMeta):
         that to name. You may want to override this if the
         slug is only part of your name (for instance see the
         blog module).
+
+        slug_suffices is passed down from the FBO, and is a
+        list of suffices that can be stripped. It's down to
+        you to ensure there aren't collisions, or your FBO
+        .get() won't always return the one you expect.
         """
-        return self.name
+
+        slug = self.name
+        try:
+            for suffix in self.slug_suffices:
+                if slug.endswith(suffix):
+                    slug = slug[:-len(suffix)]
+                    break
+        except TypeError:
+            pass
+
+        if self.slug_strip_index:
+            # We want to transform .../index -> .../
+            # so find the last component and convert
+            components = slug.split('/')
+            if components[-1] == 'index':
+                components[-1] = ''
+                slug = '/'.join(components)
+            if slug == '/':
+                # this is a special case, because we want
+                # root indexes to work with a url pattern of:
+                # r'^(?P<slug>.*)$' which will be empty at
+                # the root.
+                slug = ''
+        return slug
 
     @property
     def metadata(self):
