@@ -158,7 +158,7 @@ class FileObject(metaclass=FileObjectMeta):
         if key == 'content':
             _ = self.metadata
             return self.content
-        return self.metadata[key]
+        return self.metadata.get(key, None)
 
     def __str__(self):
         return self.name

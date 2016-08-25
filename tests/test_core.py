@@ -371,8 +371,7 @@ class TestMetadataFormats(TestCase):
             name='test2.rst',
         )
 
-        with self.assertRaises(KeyError):
-            _ = obj.title
+        self.assertIsNone(obj.title)
         self.assertEqual(
             '---\ntitle: Second in the alphabet\nsize: middling\ntags:\n - tag2\n - tag_all\n---\nMy little explicit YAML test.\n',
             obj.content,
