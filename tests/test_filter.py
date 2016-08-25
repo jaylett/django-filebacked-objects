@@ -54,6 +54,18 @@ class TestOperators(TestCase):
             RST_FBO().get(tags__contains='tag2').name,
         )
 
+    def test_startswith(self):
+        self.assertEqual(
+            'test2.rst',
+            RST_FBO().get(slug__startswith='test2').name,
+        )
+
+    def test_endswith(self):
+        self.assertEqual(
+            'test2.rst',
+            RST_FBO().get(name__endswith='test2.rst').name,
+        )
+
     def test_in(self):
         self.assertEqual(
             [

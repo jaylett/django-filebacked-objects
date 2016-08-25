@@ -96,6 +96,12 @@ def gt(field, field_val, filter_val):
 def contains(field, field_val, filter_val):
     return filter_val in field_val
 
+def startswith(field, field_val, filter_val):
+    return str(field_val).startswith(filter_val)
+
+def endswith(field, field_val, filter_val):
+    return str(field_val).endswith(filter_val)
+
 def in_operator(field, field_val, filter_val):
     return field_val in filter_val
 
@@ -107,5 +113,7 @@ Operators = {
     'lt': lt,
     'gt': gt,
     'contains': contains,
+    'startswith': startswith,
+    'endswith': endswith,
     'in': in_operator,
 }
