@@ -13,6 +13,7 @@ from django.views.generic import (
     YearArchiveView as _YearArchiveView,
     MonthArchiveView as _MonthArchiveView,
     DayArchiveView as _DayArchiveView,
+    DateDetailView as _DateDetailView,
 )
 from markdown_deux import markdown
 from .. import FBO, FileObject, Q, Bakeable
@@ -47,7 +48,8 @@ class BlogPostFile(FileObject):
     @property
     def slug(self):
         try:
-            _, _, _, slug = self.name.split('/', 4)
+            slug = super().slug
+            _, _, _, slug = slug.split('/', 4)
             return slug
         except:
             raise KeyError('slug')
@@ -207,21 +209,12 @@ class DayArchiveView(BakeableBlogDateMixin, _DayArchiveView):
         }
 
 
-# FIXME: do this using DateDetailView?
-class DetailView(Bakeable, _DetailView):
+class DateDetailView(Bakeable, _DateDetailView):
     template_name = 'blog/post.html'
     queryset = BlogPost()
-
-    def get_object(self, queryset=None):
-        if queryset is None:
-            queryset = self.get_queryset()
-        name = '%04d/%02d/%02d/%s' % (
-            int(self.kwargs.get('year', None)),
-            int(self.kwargs.get('month', None)),
-            int(self.kwargs.get('day', None)),
-            self.kwargs.get('slug', None),
-        )
-        return queryset.get(name=name)
+    date_field = 'date'
+    uses_datetime_field = True
+    month_format = '%m'
 
     def get_paths(self):
         # Remember that get_absolute_url() doesn't return
@@ -337,7 +330,7 @@ urlpatterns = [
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/p(?P<page>[0-9]+)/$', MonthArchiveView.as_view(), name='blog-month-paginated'),
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$', DayArchiveView.as_view(), name='blog-day'),
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/p(?P<page>[0-9]+)/$', DayArchiveView.as_view(), name='blog-day-paginated'),
-    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/(?P<slug>.*)/$', DetailView.as_view(), name='blog-detail'),
+    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/(?P<slug>.*)$', DateDetailView.as_view(), name='blog-detail'),
     url(r'^index.atom$', BlogFeed.as_view(
         feed_title = settings.FBO_BLOG_TITLE,
         feed_subtitle = settings.FBO_BLOG_SUBTITLE,

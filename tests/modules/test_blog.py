@@ -104,8 +104,6 @@ class TestBlogView(TestCase):
         self.assertEqual(404, resp.status_code)
 
         resp = self.client.get('/blog/2016/06/21/single-post')
-        self.assertEqual(301, resp.status_code)
-        resp = self.client.get(resp['Location'])
         self.assertEqual(200, resp.status_code)
         self.assertEqual('text/html; charset=utf-8', resp['Content-Type'])
         self.assertEqual(
@@ -114,8 +112,6 @@ class TestBlogView(TestCase):
         )
 
         resp = self.client.get('/blog/2016/07/21/single-post')
-        self.assertEqual(301, resp.status_code)
-        resp = self.client.get(resp['Location'])
         self.assertEqual(200, resp.status_code)
         self.assertEqual('text/html; charset=utf-8', resp['Content-Type'])
         self.assertEqual(
@@ -141,21 +137,21 @@ class TestBlogView(TestCase):
                 'blog/2016/05/21/index.html',
                 'blog/2016/06/21/index.html',
                 'blog/2016/07/21/index.html',
-                'blog/2016/05/21/single-post/index.html',
-                'blog/2016/06/21/single-post/index.html',
-                'blog/2016/07/21/single-post/index.html',
-                'blog/2016/05/21/second-post/index.html',
-                'blog/2016/06/21/second-post/index.html',
-                'blog/2016/07/21/second-post/index.html',
-                'blog/2016/05/21/third-post/index.html',
-                'blog/2016/06/21/third-post/index.html',
-                'blog/2016/07/21/third-post/index.html',
-                'blog/2016/05/21/fourth-post/index.html',
-                'blog/2016/06/21/fourth-post/index.html',
-                'blog/2016/07/21/fourth-post/index.html',
-                'blog/2016/05/21/fifth-post/index.html',
-                'blog/2016/06/21/fifth-post/index.html',
-                'blog/2016/07/21/fifth-post/index.html',
+                'blog/2016/05/21/single-post.html',
+                'blog/2016/06/21/single-post.html',
+                'blog/2016/07/21/single-post.html',
+                'blog/2016/05/21/second-post.html',
+                'blog/2016/06/21/second-post.html',
+                'blog/2016/07/21/second-post.html',
+                'blog/2016/05/21/third-post.html',
+                'blog/2016/06/21/third-post.html',
+                'blog/2016/07/21/third-post.html',
+                'blog/2016/05/21/fourth-post.html',
+                'blog/2016/06/21/fourth-post.html',
+                'blog/2016/07/21/fourth-post.html',
+                'blog/2016/05/21/fifth-post.html',
+                'blog/2016/06/21/fifth-post.html',
+                'blog/2016/07/21/fifth-post.html',
                 'blog/index.atom',
             }
             self.assertEqual(
