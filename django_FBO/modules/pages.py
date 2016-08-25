@@ -46,5 +46,5 @@ class PageView(Bakeable, DetailView):
         # an absolute URL, just netloc-relative.
         return [
             p.get_absolute_url()
-            for p in self.queryset.all()
+            for p in self.get_queryset().all()
         ]
