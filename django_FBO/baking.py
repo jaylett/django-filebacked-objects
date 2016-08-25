@@ -10,12 +10,13 @@ from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
 import os
 import os.path
+import sys
 
 
 class Bakeable:
     """A CBV that can be baked. This is pretty abstract."""
 
-    def bake(self, output_dir=None, paths=None):
+    def bake(self, output_dir=None, paths=None, verbosity=0, stdout=sys.stdout):
         """
         Bake one or more URLs via this view into output_dir
         (defaults to settings.FBO_BUILD_DIR). If paths is
@@ -27,10 +28,14 @@ class Bakeable:
         if output_dir is None:
             output_dir = settings.FBO_BUILD_DIR
         if paths is None:
+            if verbosity > 1:
+                stdout.write(" > fetching paths (in %s)\n" % str(self))
             paths = self.get_paths()
 
         factory = RequestFactory()
         for path in paths:
+            if verbosity > 2:
+                stdout.write(" * %s\n" % str(path))
             filename = self.get_filename(path)
             out_fname = os.path.join(output_dir, filename)
             os.makedirs(
@@ -101,12 +106,14 @@ class Bakeable:
         )
 
 
-def bake(output_dir=None, resolver=None):
+def bake(output_dir=None, resolver=None, verbosity=0, stdout=sys.stdout):
     if resolver is None:
         resolver = get_resolver()
+    if verbosity > 1:
+        stdout.write("Baking %s\n" % str(resolver))
     if isinstance(resolver, RegexURLResolver):
         for up in resolver.url_patterns:
-            bake(output_dir, up)
+            bake(output_dir, up, verbosity, stdout)
     elif isinstance(resolver, RegexURLPattern):
         view = resolver.callback
         # `view` is a callable, but it may also be
@@ -132,6 +139,16 @@ def bake(output_dir=None, resolver=None):
                         view_instance.bake(
                             output_dir,
                             [reverse(resolver.name)],
+                            verbosity,
+                            stdout,
                         )
                 else:
-                    view_instance.bake(output_dir)
+                    view_instance.bake(
+                        output_dir,
+                        None,
+                        verbosity,
+                        stdout,
+                    )
+            else:
+                if verbosity > 0:
+                    stdout.write(" ! skipping %s\n" % str(view))

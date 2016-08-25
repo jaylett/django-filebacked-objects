@@ -15,4 +15,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        bake(output_dir=options['outdir'])
+        bake(
+            output_dir=options['outdir'],
+            verbosity=options['verbosity'],
+            stdout=self.stdout,
+        )
