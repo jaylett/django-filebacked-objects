@@ -128,6 +128,7 @@ FBO_BUILD_DIR = os.path.join(BASE_DIR, 'build')
         if module == 'pages':
             mkfile(os.path.join('templates', 'page.html'))
         elif module == 'blog':
+            mkdir(os.path.join('templates', 'blog'))
             mkfile(os.path.join('templates', 'blog', 'index.html'))
             mkfile(os.path.join('templates', 'blog', 'post.html'))
             mkfile(os.path.join('templates', 'blog', '_pagination.html'))
