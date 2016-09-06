@@ -27,7 +27,7 @@ setup(
     author_email='james@tartarus.org',
     entry_points={
         'console_scripts': [
-            'django-FBO-newsite = django_FBO.__script__:newsite'
+            'django-fbo-newsite = django_FBO.__script__:newsite'
         ],
     },
     install_requires=[
