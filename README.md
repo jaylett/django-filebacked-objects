@@ -26,7 +26,7 @@ new.
 
 ```
 $ pip install django_FBO
-$ django-FBO-newsite --modules=pages,blog <sitename>
+$ django-fbo-newsite --modules=pages,blog <sitename>
 $ pip install -r requirements.txt
 ```
 
