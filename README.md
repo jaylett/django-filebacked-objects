@@ -54,6 +54,18 @@ A more complex FBO configuration that looks for files in
 `./posts/YYYY/MM/DD/slug` and renders them using a `blog/post.html`
 template and `blog/index.html` for _all_ the indexes.
 
+## Included modules: binary and interspersed
+
+The binary module isn't very useful; it just allows you to store
+binary objects in an FBO tree and expose them. Generally you're
+better off doing this using `MEDIA_ROOT` and `MEDIA_URL`.
+
+However the interspersed module allows you to mix pages and binary
+objects in the same tree.
+
+This isn't bootstrapped by `django-fbo-newsite`, because it's
+generally only used for migrating existing sites to use FBO.
+
 ## Bake your site
 
 ```
@@ -106,12 +118,17 @@ FBO object, at which point it acts like an ORM model:
 
 ## TODO
 
+ * binary shouldn't have metadata, or should use detached
  * metadata from detached file (with auto-detection of format?)
+ * tests for binary, interspersed modules
+ * tests for pages module template overriding
+ * pages module auto-rendering for Markdown, HTML?
  * tests for .none(), .exists()
  * tests for .datetimes()
  * real documentation!
  * MetadataInFileHead is somewhat ponderous
  * Options/_meta actually overridable etc
+ * Remove django-markdown-deux requirement for tests
 
 ## Requirements
 
