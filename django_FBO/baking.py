@@ -8,6 +8,7 @@ from django.core.urlresolvers import (
 )
 from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
+from django.views.generic import TemplateView
 import os
 import os.path
 import sys
@@ -104,6 +105,11 @@ class Bakeable:
         return tuple(
             get_resolver().reverse(self)
         )
+
+
+class BakeableTemplateView(Bakeable, TemplateView):
+    # This one just works, so make it simple to use.
+    pass
 
 
 def bake(output_dir=None, resolver=None, verbosity=0, stdout=sys.stdout):
