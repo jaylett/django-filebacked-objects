@@ -1,3 +1,16 @@
+"""Pages module for django_FBO.
+
+Looks for things in {{ BASE_DIR }}/pages, by default ignoring *~
+backup files. Include in your urlconf as something like:
+
+url(r'^(?P<slug>.*)$', Page.as_view(), name='page'),
+
+See the interspersed module if you want to have (eg) images in the
+same URL hierarchy as your pages (instead of putting them in /media/
+or similar, which you can do using MEDIA_ROOT and MEDIA_URL).
+
+"""
+
 import os.path
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -32,7 +45,14 @@ class PageView(Bakeable, DetailView):
     template_name = 'page.html'
     queryset = Page()
     slug = None
-    
+
+    def get_template_names(self):
+        override =  self.get_object().metadata.get('template')
+        if override is not None:
+            return [ override ]
+        else:
+            return [ self.template_name ]
+
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
