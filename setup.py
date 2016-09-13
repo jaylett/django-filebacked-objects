@@ -1,7 +1,7 @@
 from setuptools import setup
 
 PACKAGE = 'django_FBO'
-VERSION = '3.2.1'
+VERSION = '3.2.2'
 
 setup(
     name=PACKAGE,
