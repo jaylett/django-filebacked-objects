@@ -93,7 +93,7 @@ class BlogPost(FBO):
 
 class BakeableBlogMixin(Bakeable):
     template_name = 'blog/index.html'
-    queryset = BlogPost()
+    queryset = BlogPost().exclude(status='draft')
     date_field = 'date'
     uses_datetime_field = True
     paginate_by = 10
