@@ -90,7 +90,7 @@ def get_interspersed_urls(exts, binaryview_kwargs=None, pageview_kwargs=None):
                 },
                 InterspersedBinaryView.as_view(
                     ext=ext,
-                    **binaryview_kwargs,
+                    **binaryview_kwargs
                 ),
                 name=ext,
             ),
