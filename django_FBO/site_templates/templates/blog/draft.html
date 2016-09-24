@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load markdown_deux_tags %}
+
+{% block head_title_page %}My blog{% endblock %}
+
+{% block head_meta %}
+{{ block.super }}
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+{% endblock %}
+
+{% block content %}
+<article>
+<p class='warning'>This is a draft blog post. The URL will change when published, and should not be widely shared until then.</p>
+{% if object.author %}
+  <p class='dateline'>{{ object.author }}, {{ object.date|date:"l jS F, Y" }}</p>
+{% elif object.date %}
+  <p class='dateline'>{{ object.date|date:"l jS F, Y" }}</p>
+{% endif %}
+{{ object.content|markdown }}
+</article>
+{% endblock %}

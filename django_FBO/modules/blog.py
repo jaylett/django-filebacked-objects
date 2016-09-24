@@ -19,6 +19,11 @@ from markdown_deux import markdown
 from .. import FBO, FileObject, Q, Bakeable
 
 
+def get_drafts_prefix():
+    # Note this must function in a regular expression as well.
+    return getattr(settings, 'FBO_BLOG_DRAFTS_PREFIX', 'drafts/')
+
+
 class Author(object):
     # Currently just used for generating the feed, but
     # in theory could be populated automatically for a
@@ -35,24 +40,40 @@ class Author(object):
 class BlogPostFile(FileObject):
 
     def get_absolute_url(self):
-        return reverse(
-            'blog-detail',
-            kwargs={
-                'year': '%04d' % self.date.year,
-                'month': '%02d' % self.date.month,
-                'day': '%02d' % self.date.day,
-                'slug': self.slug,
-            }
-        )
+        if self.slug.startswith(get_drafts_prefix()):
+            return reverse(
+                'blog-draft-detail',
+                kwargs={
+                    'slug': self.slug,
+                },
+            )
+        else:
+            return reverse(
+                'blog-detail',
+                kwargs={
+                    'year': '%04d' % self.date.year,
+                    'month': '%02d' % self.date.month,
+                    'day': '%02d' % self.date.day,
+                    'slug': self.slug,
+                }
+            )
 
     @property
     def slug(self):
+        """
+        If we can split the slug into YEAR/MONTH/DAY/SLUG,
+        do so; otherwise the slug remains unchanged.
+        """
+
         try:
             slug = super().slug
+        except:
+            raise KeyError('slug')
+        try:
             _, _, _, slug = slug.split('/', 4)
             return slug
         except:
-            raise KeyError('slug')
+            return slug
 
     @property
     def date(self):
@@ -93,7 +114,10 @@ class BlogPost(FBO):
 
 class BakeableBlogMixin(Bakeable):
     template_name = 'blog/index.html'
-    queryset = BlogPost().exclude(status='draft')
+    queryset = BlogPost().exclude(
+        Q(status='draft') |
+        Q(name__startswith=get_drafts_prefix()),
+    )
     date_field = 'date'
     uses_datetime_field = True
     paginate_by = 10
@@ -225,6 +249,21 @@ class DateDetailView(Bakeable, _DateDetailView):
         ]
 
 
+class DraftDetailView(Bakeable, _DetailView):
+    template_name = 'blog/draft.html'
+    queryset = BlogPost().filter(
+        name__startswith=get_drafts_prefix(),
+    )
+
+    def get_paths(self):
+        # Remember that get_absolute_url() doesn't return
+        # an absolute URL, just netloc-relative.
+        return [
+            p.get_absolute_url()
+            for p in self.queryset.all()
+        ]
+
+
 class BetterAtomFeed(Atom1Feed):
     def add_item_elements(self, handler, item):
         super(BetterAtomFeed, self).add_item_elements(handler, item)
@@ -322,6 +361,8 @@ class BlogFeed(FeedMixin, ArchiveIndexView):
 # Just include this directly, unless you want to customise
 # any of the view defaults.
 urlpatterns = [
+    # First our indexes. Each comes twice, the second URL dealing with
+    # pagination. We have: everything, year, month and day.
     url(r'^$', ArchiveIndexView.as_view(), name='blog-index'),
     url(r'^p(?P<page>[0-9]+)/$', ArchiveIndexView.as_view(), name='blog-index-paginated'),
     url(r'^(?P<year>[0-9]{4})/$', YearArchiveView.as_view(), name='blog-year'),
@@ -330,10 +371,20 @@ urlpatterns = [
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/p(?P<page>[0-9]+)/$', MonthArchiveView.as_view(), name='blog-month-paginated'),
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$', DayArchiveView.as_view(), name='blog-day'),
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/p(?P<page>[0-9]+)/$', DayArchiveView.as_view(), name='blog-day-paginated'),
+    # Then a date-based view of a single blog post.
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/(?P<slug>.*)$', DateDetailView.as_view(), name='blog-detail'),
+    # Now our Atom feed.
     url(r'^index.atom$', BlogFeed.as_view(
         feed_title = settings.FBO_BLOG_TITLE,
         feed_subtitle = settings.FBO_BLOG_SUBTITLE,
         feed_copyright = settings.FBO_BLOG_COPYRIGHT,
     ), name='blog-feed'),
+    # And finally our drafts. Note that we include the prefix directly
+    # into the regular expression, so the prefix must not contain any
+    # RE atoms that aren't literals.
+    url(
+        r'^(?P<slug>' + get_drafts_prefix() + '.*)$',
+        DraftDetailView.as_view(),
+        name='blog-draft-detail',
+    ),
 ]

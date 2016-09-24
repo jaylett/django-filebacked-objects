@@ -21,7 +21,7 @@ class TestBlog(TestCase):
         # all within the same year, so archive & year
         # will paginate, but month & day will not.
         self.assertEqual(
-            15,
+            17,
             blog.BlogPost().objects.count(),
         )
 
@@ -153,6 +153,8 @@ class TestBlogView(TestCase):
                 'blog/2016/06/21/fifth-post.html',
                 'blog/2016/07/21/fifth-post.html',
                 'blog/index.atom',
+                'blog/drafts/draft-post.html',
+                'blog/drafts/second-draft-post.html',
             }
             self.assertEqual(
                 EXPECTED_FILES,
