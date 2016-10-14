@@ -247,7 +247,7 @@ class FBO:
         return _count
 
     def _prefetch(self):
-        if self._fetched is None:
+        if self._fetched is None or settings.DEBUG:
             self._fetched = []
             #print("Starting _prefetch")
             for fname in utils.get_files(self._storage):
