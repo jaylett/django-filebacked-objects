@@ -107,18 +107,43 @@ class BlogPost(FBO):
     _filters = [
         ~Q(name__glob='*~'),
     ]
+    _order_by = [ 'date' ]
     metadata = BlogPostFile.MetadataInFileHead
     model = BlogPostFile
     slug_suffices = getattr(settings, 'FBO_DEFAULT_SLUG_SUFFICES', None)
     slug_strip_index = True
 
+    def exclude_drafts(self):
+        return self.exclude(
+            Q(status='draft') |
+            Q(name__startswith=get_drafts_prefix()),
+        )
+
+    def find_next(self, obj):
+        _iter = iter(self.exclude_drafts())
+        try:
+            for candidate in _iter:
+                if candidate == obj:
+                    return next(_iter)
+        except StopIteration:
+            return None
+
+    def find_previous(self, obj):
+        _iter = iter(self.exclude_drafts())
+        previous = None
+        try:
+            for candidate in _iter:
+                if candidate == obj:
+                    return previous
+                else:
+                    previous = candidate
+        except StopIteration:
+            return None
+
 
 class BakeableBlogMixin(Bakeable):
     template_name = 'blog/index.html'
-    queryset = BlogPost().exclude(
-        Q(status='draft') |
-        Q(name__startswith=get_drafts_prefix()),
-    )
+    queryset = BlogPost().exclude_drafts()
     date_field = 'date'
     uses_datetime_field = True
     paginate_by = 10
@@ -240,6 +265,12 @@ class DateDetailView(Bakeable, _DateDetailView):
     date_field = 'date'
     uses_datetime_field = True
     month_format = '%m'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['next_object'] = self.queryset.find_next(self.object)
+        context['previous_object'] = self.queryset.find_previous(self.object)
+        return context
 
     def get_paths(self):
         # Remember that get_absolute_url() doesn't return

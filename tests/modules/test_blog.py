@@ -25,6 +25,20 @@ class TestBlog(TestCase):
             blog.BlogPost().objects.count(),
         )
 
+    def test_next_previous(self):
+        """Do find_next() / find_previous() work?"""
+
+        # 15 excluding drafts, 0..14
+        qs = blog.BlogPost().exclude_drafts()
+        self.assertEqual(None, qs.find_previous(qs[0]))
+        self.assertEqual(qs[1], qs.find_next(qs[0]))
+
+        self.assertEqual(qs[10], qs.find_previous(qs[11]))
+        self.assertEqual(qs[12], qs.find_next(qs[11]))
+
+        self.assertEqual(qs[13], qs.find_previous(qs[14]))
+        self.assertEqual(None, qs.find_next(qs[14]))
+
 
 @override_settings(
     ROOT_URLCONF='tests.modules.test_blog',
