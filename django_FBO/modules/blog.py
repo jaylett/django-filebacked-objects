@@ -14,6 +14,7 @@ from django.views.generic import (
     MonthArchiveView as _MonthArchiveView,
     DayArchiveView as _DayArchiveView,
     DateDetailView as _DateDetailView,
+    ListView,
 )
 from markdown_deux import markdown
 from .. import FBO, FileObject, Q, Bakeable
@@ -249,6 +250,16 @@ class DateDetailView(Bakeable, _DateDetailView):
         ]
 
 
+class DraftsList(ListView):
+    queryset = BlogPost().filter(
+        Q(name__startswith=get_drafts_prefix())
+    )
+    paginate_by = None
+
+    def get_template_names(self):
+        return [ 'blog/drafts_index.html', 'blog/index.html' ]
+
+
 class DraftDetailView(Bakeable, _DetailView):
     template_name = 'blog/draft.html'
     queryset = BlogPost().filter(
@@ -379,6 +390,9 @@ urlpatterns = [
         feed_subtitle = settings.FBO_BLOG_SUBTITLE,
         feed_copyright = settings.FBO_BLOG_COPYRIGHT,
     ), name='blog-feed'),
+    # Drafts list -- this doesn't get baked, so it won't appear in the
+    # live site.
+    url(r'^drafts/$', DraftsList.as_view()),
     # And finally our drafts. Note that we include the prefix directly
     # into the regular expression, so the prefix must not contain any
     # RE atoms that aren't literals.

@@ -119,6 +119,14 @@ class TestBlogView(TestCase):
             resp.content.strip(),
         )
 
+        resp = self.client.get('/blog/drafts/')
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual('text/html; charset=utf-8', resp['Content-Type'])
+        self.assertEqual(
+            b'Blog drafts page. 2 drafts.',
+            resp.content.strip(),
+        )
+
     def test_baking(self):
         """Test that we can bake pages."""
 
