@@ -160,5 +160,10 @@ class FileObject(metaclass=FileObjectMeta):
             return self.content
         return self.metadata.get(key, None)
 
+    def __eq__(self, other):
+        if other is None or not isinstance(other, FileObject):
+            return False
+        return self.path == other.path
+
     def __str__(self):
         return self.name

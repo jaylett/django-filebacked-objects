@@ -4,6 +4,7 @@ from django.core.exceptions import (
     MultipleObjectsReturned,
 )
 from django.test import SimpleTestCase as TestCase
+from itertools import combinations
 
 from django_FBO import FBO, FileObject
 
@@ -162,6 +163,48 @@ class TestGet(TestCase):
             ).all().get(
                 name='missing.txt',
             )
+
+
+class TestEquality(TestCase):
+    """
+    Are different FileObjects different, are the same ones
+    the same?
+    """
+
+    def test_equal(self):
+        """Two FileObjects with the same path are the same."""
+
+        qs = FBO(path=TEST_FILES_ROOT, glob='*.md').order_by('name')
+        qs2 = FBO(path=TEST_FILES_ROOT, glob='*.md').order_by('name')
+        self.assertEqual(
+            qs[0],
+            qs2[0],
+        )
+
+    def test_unequal(self):
+        """FileObjects with different paths are all different."""
+
+        qs = FBO(path=TEST_FILES_ROOT, glob='*.md').order_by('name')
+        # There are four of these.
+        for a, b in combinations(qs.all(), 2):
+            self.assertNotEqual(a, b)
+
+    def test_none(self):
+        """FileObjects are never equal to None."""
+
+        qs = FBO(path=TEST_FILES_ROOT, glob='*.md').order_by('name')
+        self.assertNotEqual(None, qs[0])
+        self.assertNotEqual(qs[0], None)
+
+    def test_other_types(self):
+        """FileObjects are never equal to non-FileObject."""
+
+        qs = FBO(path=TEST_FILES_ROOT, glob='*.md').order_by('name')
+        self.assertNotEqual(1, qs[0])
+        self.assertNotEqual(NotImplementedError, qs[0])
+        class MockFileObject:
+            path = qs[0].path
+        self.assertNotEqual(MockFileObject(), qs[0])
 
 
 class TestOrdering(TestCase):
