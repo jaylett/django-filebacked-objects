@@ -61,6 +61,11 @@ def newsite(args=None):
         '--modules', dest='modules', action='store',
         help='modules to enable, comma separated',
     )
+    parser.add_argument(
+        '--url', dest='siteurl', action='store',
+        default='localhost', # Not terribly helpful, but won't break
+        help='URL this site will be served from',
+    )
 
     args = parser.parse_args(args)
     if args.modules is None:
@@ -71,6 +76,7 @@ def newsite(args=None):
     sitedir = args.sitedir[0]
     _context['SITENAME'] = args.sitename[0]
     _context['SITEDIR'] = sitedir
+    _content['SITEURL'] = args.siteurl
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
     _context['SECRET_KEY'] = get_random_string(50, chars)
     URLS = ''

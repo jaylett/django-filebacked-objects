@@ -45,7 +45,15 @@ class Bakeable:
             )
             with open(out_fname, 'wb') as f:
                 match = resolve(path)
-                request = factory.get(path)
+                request = factory.get(
+                    path,
+                    secure=getattr(settings, 'FBO_SERVING_SECURE', False),
+                    HTTP_HOST=getattr(
+                        settings,
+                        'FBO_SERVING_HOST',
+                        'localhost',
+                    ),
+                )
                 response = match.func(
                     request,
                     *match.args,

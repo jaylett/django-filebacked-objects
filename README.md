@@ -26,16 +26,19 @@ new.
 
 ```
 $ pip install django_FBO
-$ django-fbo-newsite --modules=pages,blog <sitename>
+$ django-fbo-newsite --modules=pages,blog --url=<url> <sitedir> <sitename>
 $ pip install -r requirements.txt
 ```
 
 This will create a Django project, pre-configured to run a simple FBO
 site, including the pages and blog module configurations. It will
-create a Django modern-style `<sitename>` directory containing
+create a Django modern-style `<sitedir>` directory containing
 `settings.py`, `wsgi.py` and `urls.py`; the settings relies on
 defaults provided by `django_FBO`, and allows [12 factor]-style
 environment overriding.
+
+The site will be called `<sitename>`, and is expected to be served at
+`<url>` (this is used for the blog Atom feed).
 
 You have to install the requirements FBO sets up for you, because
 we're opinionated and we pull in a couple of things for you which

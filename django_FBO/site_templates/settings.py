@@ -94,5 +94,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 FBO_DEFAULT_SLUG_SUFFICES = [ '.md' ]
 # Where do we bake FBO to?
 FBO_BUILD_DIR = os.path.join(BASE_DIR, 'build')
+FBO_SERVING_HOST = '@@SITEURL@@'
 
 @@MODULE_SETTINGS@@
