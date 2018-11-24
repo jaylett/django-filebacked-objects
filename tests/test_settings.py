@@ -7,6 +7,7 @@ SECRET_KEY = 'fake-key'
 INSTALLED_APPS = [
     'django_FBO',
 ]
+ALLOWED_HOSTS = ['localhost']
 ROOT_DIR = os.path.dirname(__file__)
 BASE_DIR = os.path.join(
     ROOT_DIR,

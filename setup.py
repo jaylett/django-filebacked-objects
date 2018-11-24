@@ -31,8 +31,8 @@ setup(
         ],
     },
     install_requires=[
-        'Django~=1.10',
-        'PyYAML~=3.11',
+        'Django>=1.11.0',
+        'PyYAML~=3.13',
     ],
     url='https://github.com/jaylett/django-filebacked-objects',
     classifiers=[
