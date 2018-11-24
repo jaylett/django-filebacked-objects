@@ -66,12 +66,14 @@ class BlogPostFile(FileObject):
 
         try:
             slug = super().slug
-        except:
+        except AttributeError:
             raise KeyError('slug')
         try:
-            _, _, _, slug = slug.split('/', 4)
+            _, _, _, slug = slug.split('/', 3)
             return slug
-        except:
+        except ValueError:
+            # Insufficient values to unpack, ie weren't
+            # four or more /-separated sections in the slug.
             return slug
 
     @property
@@ -79,7 +81,7 @@ class BlogPostFile(FileObject):
         # figure out the date from the name, else delegate
         # to published
         try:
-            year, month, day, _ = self.name.split('/', 4)
+            year, month, day, _ = self.name.split('/', 3)
             return timezone.now().replace(
                 year=int(year),
                 month=int(month),
@@ -89,7 +91,8 @@ class BlogPostFile(FileObject):
                 second=0,
                 microsecond=0,
             )
-        except:
+        except ValueError:
+            # Not enough /-separated sections to split.
             return self.published
 
     @property
