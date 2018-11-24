@@ -11,6 +11,7 @@ _context = {}
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 def mkfile(template, prefix=''):
     """
     Create a single file, named after the template, in the directory
@@ -39,7 +40,7 @@ def mkfile(template, prefix=''):
         except FileNotFoundError:
             # No template, ie empty file (eg __init__.py)
             pass
-    
+
 
 def newsite(args=None):
     if args is None:
@@ -63,7 +64,8 @@ def newsite(args=None):
     )
     parser.add_argument(
         '--url', dest='siteurl', action='store',
-        default='localhost', # Not terribly helpful, but won't break
+        # The following isn't terribly helpful, but won't break
+        default='localhost',
         help='URL this site will be served from',
     )
 
@@ -76,7 +78,7 @@ def newsite(args=None):
     sitedir = args.sitedir[0]
     _context['SITENAME'] = args.sitename[0]
     _context['SITEDIR'] = sitedir
-    _content['SITEURL'] = args.siteurl
+    _context['SITEURL'] = args.siteurl
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
     _context['SECRET_KEY'] = get_random_string(50, chars)
     URLS = ''
@@ -139,6 +141,7 @@ FBO_BUILD_DIR = os.path.join(BASE_DIR, 'build')
             mkfile(os.path.join('templates', 'blog', 'post.html'))
             mkfile(os.path.join('templates', 'blog', 'draft.html'))
             mkfile(os.path.join('templates', 'blog', '_pagination.html'))
+
 
 if __name__ == "__main__":
     newsite()

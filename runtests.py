@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
         def teardown_databases(self, old_config, **kwargs):
             pass
-    
+
     test_runner = NoDbTestRunner()
     if len(sys.argv) > 1:
         failures = test_runner.run_tests(sys.argv[1:])

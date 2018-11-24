@@ -91,7 +91,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #
 # The default is None, ie don't strip any slug suffices. (index will
 # still be stripped though.)
-FBO_DEFAULT_SLUG_SUFFICES = [ '.md' ]
+FBO_DEFAULT_SLUG_SUFFICES = ['.md']
 # Where do we bake FBO to?
 FBO_BUILD_DIR = os.path.join(BASE_DIR, 'build')
 FBO_SERVING_HOST = '@@SITEURL@@'

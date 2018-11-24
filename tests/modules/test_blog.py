@@ -2,7 +2,6 @@ from django.conf.urls import include, url
 from django.contrib.staticfiles import utils
 from django.core.files.storage import FileSystemStorage
 from django.test import TestCase, override_settings
-import os.path
 import tempfile
 
 from django_FBO import bake

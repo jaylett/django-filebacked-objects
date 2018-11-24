@@ -59,7 +59,7 @@ class FBO:
             self._add_q(
                 Q(name__glob=self.glob),
             )
-        
+
         if self.path is None:
             raise TypeError("You must set a path for FBOs.")
 
@@ -196,20 +196,20 @@ class FBO:
 
     def _add_q(self, q_object):
         self._filters.append(q_object)
-    
+
     def filter(self, *args, **kwargs):
         clone = self.clone()
         clone._add_q(Q(*args, **kwargs))
         return clone
-    
+
     def exclude(self, *args, **kwargs):
         clone = self.clone()
         clone._add_q(~Q(*args, **kwargs))
         return clone
-    
+
     def __len__(self):
         return self.count()
-    
+
     def __getitem__(self, idx):
         if isinstance(idx, slice):
             if (
@@ -226,7 +226,7 @@ class FBO:
         except StopIteration:
             raise IndexError(idx)
         return obj
-    
+
     def order_by(self, *args):
         return self.clone(_order_by=args)
 
@@ -239,7 +239,7 @@ class FBO:
             raise self.model.MultipleObjectsReturned
         else:
             return filtered[0]
-    
+
     def count(self):
         _count = 0
         for _file in iter(self):
@@ -262,7 +262,7 @@ class FBO:
                 if self._check_filters(_file):
                     #print("  matches filters")
                     self._fetched.append(_file)
-    
+
     def __iter__(self):
         self._prefetch()
         # apply order_by here because we may have prefetched on a

@@ -124,7 +124,7 @@ class FileObject(metaclass=FileObjectMeta):
             if self.content.startswith('{\n'):
                 # JSON!
                 end = self.content.find('}\n')
-                if end!=-1:
+                if end != -1:
                     blob = self.content[:end+2]
                     self.content = self.content[end+2:]
                     data = json.loads(blob)
@@ -134,7 +134,7 @@ class FileObject(metaclass=FileObjectMeta):
                 # Magic numbers: 4 is skipping the intro ---\n,
                 # 8 is skipping both intro and outro ---\n.
                 end = self.content[4:].find('---\n')
-                if end!=-1:
+                if end != -1:
                     blob = self.content[4:end+4]
                     self.content = self.content[end+8:]
                     data = yaml.load(blob)
@@ -156,7 +156,7 @@ class FileObject(metaclass=FileObjectMeta):
         # if we are asked for content before any metadata,
         # need to load it
         if key == 'content':
-            _ = self.metadata
+            self.metadata
             return self.content
         return self.metadata.get(key, None)
 

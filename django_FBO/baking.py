@@ -89,7 +89,7 @@ class Bakeable:
         if path.startswith('/'):
             # Which should be always!
             path = path[1:]
-        elif path!='':
+        elif path != '':
             raise ValueError("Path should start with '/'.")
         components = path.split('/')
         if components[-1] == '':

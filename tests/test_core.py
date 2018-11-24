@@ -41,7 +41,7 @@ class TestAll(TestCase):
                 'test2.rst',
                 'test3.rst',
             },
-            { o.name for o in qs },
+            {o.name for o in qs},
         )
 
     def test_glob_restriction(self):
@@ -63,7 +63,7 @@ class TestAll(TestCase):
                 'test1.md',
                 'test2.md',
             },
-            { o.name for o in qs },
+            {o.name for o in qs},
         )
 
 
@@ -112,7 +112,7 @@ class TestGet(TestCase):
         """Cannot get not matching the glob."""
 
         with self.assertRaises(ObjectDoesNotExist):
-            qs = FBO(
+            FBO(
                 path=TEST_FILES_ROOT,
                 glob='*.md',
             ).all().get(
@@ -148,13 +148,13 @@ class TestGet(TestCase):
         ).order_by('name')
 
         with self.assertRaises(IndexError):
-            obj = qs[10]
+            qs[10]
 
     def test_multiple(self):
         """Can't get if we resolve multiple objects."""
 
         with self.assertRaises(MultipleObjectsReturned):
-            _ = RST_FBO().get()
+            RST_FBO().get()
 
     def test_missing(self):
         with self.assertRaises(ObjectDoesNotExist):
@@ -202,8 +202,10 @@ class TestEquality(TestCase):
         qs = FBO(path=TEST_FILES_ROOT, glob='*.md').order_by('name')
         self.assertNotEqual(1, qs[0])
         self.assertNotEqual(NotImplementedError, qs[0])
+
         class MockFileObject:
             path = qs[0].path
+
         self.assertNotEqual(MockFileObject(), qs[0])
 
 
@@ -416,7 +418,8 @@ class TestMetadataFormats(TestCase):
 
         self.assertIsNone(obj.title)
         self.assertEqual(
-            '---\ntitle: Second in the alphabet\nsize: middling\ntags:\n - tag2\n - tag_all\n---\nMy little explicit YAML test.\n',
+            '---\ntitle: Second in the alphabet\nsize: middling\ntags:\n'
+            ' - tag2\n - tag_all\n---\nMy little explicit YAML test.\n',
             obj.content,
         )
 
@@ -464,7 +467,7 @@ class TestSubclassing(TestCase):
         class MyFBO(FBO):
             path = '/tmp/'
             metadata = FileObject.MetadataInFileHead
-            glob='*.rst'
+            glob = '*.rst'
 
         qs = MyFBO(
             path=TEST_FILES_ROOT,
@@ -522,7 +525,7 @@ class TestSlice(TestCase):
         # cache wasn't being propagated down to sub querysets,
         # so it acts as a regression test against that also.
         qs = self.qs.clone()
-        _ = iter(qs)
+        iter(qs)
         qs = qs.filter(
             name__glob='*.rst'
         )[2:]
@@ -531,7 +534,7 @@ class TestSlice(TestCase):
             [
                 'test3.rst',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_open_both(self):
@@ -547,7 +550,7 @@ class TestSlice(TestCase):
                 'test2.rst',
                 'test3.rst',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_open_start(self):
@@ -560,7 +563,7 @@ class TestSlice(TestCase):
                 'test1.md',
                 'test1.rst',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_open_end(self):
@@ -575,7 +578,7 @@ class TestSlice(TestCase):
                 'test2.rst',
                 'test3.rst',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_closed(self):
@@ -586,7 +589,7 @@ class TestSlice(TestCase):
                 'subdir/index.md',
                 'test1.md',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_sliced_slice1(self):
@@ -597,7 +600,7 @@ class TestSlice(TestCase):
                 'subdir/index.md',
                 'test1.md',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_sliced_slice2(self):
@@ -608,7 +611,7 @@ class TestSlice(TestCase):
                 'subdir/index.md',
                 'test1.md',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_sliced_slice3(self):
@@ -619,7 +622,7 @@ class TestSlice(TestCase):
                 'subdir/index.md',
                 'test1.md',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_sliced_slice4(self):
@@ -630,7 +633,7 @@ class TestSlice(TestCase):
                 'test1.md',
                 'test1.rst',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_step(self):
@@ -642,7 +645,7 @@ class TestSlice(TestCase):
                 'test1.rst',
                 'test2.rst',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_sliced_step1(self):
@@ -652,7 +655,7 @@ class TestSlice(TestCase):
             [
                 'subdir/index.md',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_sliced_step2(self):
@@ -664,7 +667,7 @@ class TestSlice(TestCase):
                 'test1.rst',
                 'test2.rst',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
     def test_sliced_step3(self):
@@ -676,7 +679,7 @@ class TestSlice(TestCase):
                 'test1.rst',
                 'test2.rst',
             ],
-            [ o.name for o in qs ],
+            [o.name for o in qs],
         )
 
 

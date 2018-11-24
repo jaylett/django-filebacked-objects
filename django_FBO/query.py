@@ -30,7 +30,7 @@ class Q(ORM_Q):
     # And we don't contribute to a SQL query; the tree acts as a
     # functor, applied as a filter on the incoming stream of all
     # files.
-    
+
     def __call__(self, _file):
         def _check_one(child):
             # child is a node (one of us) or a tuple
@@ -78,32 +78,42 @@ class Q(ORM_Q):
 def globerator(field, field_val, filter_val):
     return fnmatch.fnmatch(field_val, filter_val)
 
+
 def equals(field, field_val, filter_val):
     return field_val == filter_val
+
 
 def lte(field, field_val, filter_val):
     return field_val <= filter_val
 
+
 def gte(field, field_val, filter_val):
     return field_val >= filter_val
+
 
 def lt(field, field_val, filter_val):
     return field_val < filter_val
 
+
 def gt(field, field_val, filter_val):
     return field_val > filter_val
+
 
 def contains(field, field_val, filter_val):
     return filter_val in field_val
 
+
 def startswith(field, field_val, filter_val):
     return str(field_val).startswith(filter_val)
+
 
 def endswith(field, field_val, filter_val):
     return str(field_val).endswith(filter_val)
 
+
 def in_operator(field, field_val, filter_val):
     return field_val in filter_val
+
 
 Operators = {
     'glob': globerator,

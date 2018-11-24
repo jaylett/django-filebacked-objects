@@ -1,10 +1,8 @@
 import os.path
-from datetime import datetime
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib.syndication.views import Feed as _Feed
 from django.core.urlresolvers import reverse
-from django.db.models.fields import TextField
 from django.utils import timezone
 from django.utils.feedgenerator import Atom1Feed
 from django.views.generic import (
@@ -107,7 +105,7 @@ class BlogPost(FBO):
     _filters = [
         ~Q(name__glob='*~'),
     ]
-    _order_by = [ 'date' ]
+    _order_by = ['date']
     metadata = BlogPostFile.MetadataInFileHead
     model = BlogPostFile
     slug_suffices = getattr(settings, 'FBO_DEFAULT_SLUG_SUFFICES', None)
@@ -155,7 +153,7 @@ class BakeableBlogMixin(Bakeable):
     def _paginate_for_baking(self, qs, date):
         page_size = self.get_paginate_by(qs)
         if page_size:
-            self.kwargs = { 'page': 1 }
+            self.kwargs = {'page': 1}
             paginator, page, queryset, is_paginated = self.paginate_queryset(qs, page_size)
             for page in range(paginator.num_pages):
                 yield self.date_to_url(date, page+1)
@@ -288,7 +286,7 @@ class DraftsList(ListView):
     paginate_by = None
 
     def get_template_names(self):
-        return [ 'blog/drafts_index.html', 'blog/index.html' ]
+        return ['blog/drafts_index.html', 'blog/index.html']
 
 
 class DraftDetailView(Bakeable, _DetailView):
@@ -346,7 +344,7 @@ class Feed(_Feed):
         if hasattr(item, 'author'):
             # FIXME: pull url if it exists
             author_obj = Author(item.author, None)
-            extra['authors'] = [ author_obj ]
+            extra['authors'] = [author_obj]
         return extra
 
 
@@ -399,7 +397,6 @@ class BlogFeed(FeedMixin, ArchiveIndexView):
         return reverse('blog-index')
 
 
-
 # Just include this directly, unless you want to customise
 # any of the view defaults.
 urlpatterns = [
@@ -410,16 +407,32 @@ urlpatterns = [
     url(r'^(?P<year>[0-9]{4})/$', YearArchiveView.as_view(), name='blog-year'),
     url(r'^(?P<year>[0-9]{4})/p(?P<page>[0-9]+)/$', YearArchiveView.as_view(), name='blog-year-paginated'),
     url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$', MonthArchiveView.as_view(), name='blog-month'),
-    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/p(?P<page>[0-9]+)/$', MonthArchiveView.as_view(), name='blog-month-paginated'),
-    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$', DayArchiveView.as_view(), name='blog-day'),
-    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/p(?P<page>[0-9]+)/$', DayArchiveView.as_view(), name='blog-day-paginated'),
+    url(
+        r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/p(?P<page>[0-9]+)/$',
+        MonthArchiveView.as_view(),
+        name='blog-month-paginated',
+    ),
+    url(
+        r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$',
+        DayArchiveView.as_view(),
+        name='blog-day',
+    ),
+    url(
+        r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/p(?P<page>[0-9]+)/$',
+        DayArchiveView.as_view(),
+        name='blog-day-paginated',
+    ),
     # Then a date-based view of a single blog post.
-    url(r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/(?P<slug>.*)$', DateDetailView.as_view(), name='blog-detail'),
+    url(
+        r'^(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/(?P<slug>.*)$',
+        DateDetailView.as_view(),
+        name='blog-detail',
+    ),
     # Now our Atom feed.
     url(r'^index.atom$', BlogFeed.as_view(
-        feed_title = settings.FBO_BLOG_TITLE,
-        feed_subtitle = settings.FBO_BLOG_SUBTITLE,
-        feed_copyright = settings.FBO_BLOG_COPYRIGHT,
+        feed_title=settings.FBO_BLOG_TITLE,
+        feed_subtitle=settings.FBO_BLOG_SUBTITLE,
+        feed_copyright=settings.FBO_BLOG_COPYRIGHT,
     ), name='blog-feed'),
     # Drafts list -- this doesn't get baked, so it won't appear in the
     # live site.

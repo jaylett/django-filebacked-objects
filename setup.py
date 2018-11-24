@@ -34,8 +34,8 @@ setup(
         'Django~=1.10',
         'PyYAML~=3.11',
     ],
-    url = 'https://github.com/jaylett/django-filebacked-objects',
-    classifiers = [
+    url='https://github.com/jaylett/django-filebacked-objects',
+    classifiers=[
         'Intended Audience :: Developers',
         'Framework :: Django',
         'License :: OSI Approved :: MIT License',

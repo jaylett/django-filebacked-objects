@@ -47,11 +47,11 @@ class PageView(Bakeable, DetailView):
     slug = None
 
     def get_template_names(self):
-        override =  self.get_object().metadata.get('template')
+        override = self.get_object().metadata.get('template')
         if override is not None:
-            return [ override ]
+            return [override]
         else:
-            return [ self.template_name ]
+            return [self.template_name]
 
     def get_object(self, queryset=None):
         if queryset is None:

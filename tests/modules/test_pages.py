@@ -21,7 +21,7 @@ TEST_TEMPLATES_DIR = os.path.join(
 
 class Page(pages.Page):
     path = TEST_BASE_DIR
-    slug_suffices = [ '.md' ]
+    slug_suffices = ['.md']
 
 
 class TestPageObject(TestCase):
