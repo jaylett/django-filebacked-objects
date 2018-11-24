@@ -86,6 +86,11 @@ class TestClone(TestCase):
             3,
             qs.count(),
         )
+        self.assertEqual(
+            1,
+            qs2.count(),
+        )
+
 
 class TestGet(TestCase):
     """
