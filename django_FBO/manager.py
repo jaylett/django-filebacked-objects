@@ -131,13 +131,11 @@ class FBO:
                                 s2 = two.step
                             return s1 * s2
 
-                        #print(val, 'merge', kwargs['_slice'])
                         kwargs['_slice'] = slice(
                             _combine_start(val, kwargs['_slice']),
                             _combine_stop(val, kwargs['_slice']),
                             _combine_step(val, kwargs['_slice']),
                         )
-                        #print('now', kwargs['_slice'])
                 # Lists must be duplicated, not just copied by
                 # reference, otherwise if we mutate them in-place
                 # in the clone it will affect the parent. This is
@@ -249,9 +247,7 @@ class FBO:
     def _prefetch(self):
         if self._fetched is None or settings.DEBUG:
             self._fetched = []
-            #print("Starting _prefetch")
             for fname in utils.get_files(self._storage):
-                #print("Found %s." % fname)
                 _file = self.model(
                     self._storage,
                     self.metadata,
@@ -260,7 +256,6 @@ class FBO:
                     self.slug_strip_index,
                 )
                 if self._check_filters(_file):
-                    #print("  matches filters")
                     self._fetched.append(_file)
 
     def __iter__(self):
@@ -280,17 +275,12 @@ class FBO:
         # check filters here as well as so we can copy
         # our cached fetched data around, to avoid hitting
         # the filesystem so much
-        #print("__iter__()")
         _filtered = []
         for _file in _objects:
-            #print("Considering %s" % _file)
             if self._check_filters(_file):
-                #print("  matches filters.")
                 _filtered.append(_file)
         if self._slice is not None:
-            #print('sliced', self._slice, [o.name for o in _filtered])
             _filtered = _filtered.__getitem__(self._slice)
-            #print('now', [o.name for o in _filtered])
         return iter(_filtered)
 
     def _check_filters(self, _file):

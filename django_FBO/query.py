@@ -54,16 +54,6 @@ class Q(ORM_Q):
                     )
 
                 _op_result = op(_field, _field_val, _filter_val)
-                #print(
-                #    "Filter %s.%s__%s=%s: %s -> %s" % (
-                #        _file,
-                #        _field,
-                #        _operator,
-                #        _filter_val,
-                #        _field_val,
-                #        _op_result,
-                #    )
-                #)
                 return _op_result
 
         _check_results = [
