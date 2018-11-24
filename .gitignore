@@ -6,3 +6,4 @@
 /build/
 /testdb
 /django_FBO.egg-info
+/.tox/
