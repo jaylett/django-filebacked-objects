@@ -45,9 +45,9 @@ class InterspersedBinaryView(BinaryView):
         if self.ext is None:
             # This is weird; there isn't a good reason to do this,
             # and plenty of reasons not to.
-            return self.queryset
+            return queryset
         else:
-            return self.queryset.filter(name__glob='*.%s' % self.ext)
+            return queryset.filter(name__glob='*.%s' % self.ext)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
