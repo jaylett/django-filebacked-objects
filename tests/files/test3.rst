@@ -6,6 +6,9 @@
     "tags": [
         "tag3",
         "tag_all"
-    ]
+    ],
+    "attributes": {
+        "key": "value"
+    }
 }
 My little explicit JSON test.

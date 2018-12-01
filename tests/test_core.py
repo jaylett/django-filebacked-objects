@@ -339,6 +339,7 @@ class TestObjects(TestCase):
                 'size',
                 'tags',
                 'metadata-format',
+                'attributes',
             },
             set(
                 obj.metadata.keys()

@@ -123,10 +123,10 @@ class FileObject(metaclass=FileObjectMeta):
         if self.metadata_location == FileObject.MetadataInFileHead:
             if self.content.startswith('{\n'):
                 # JSON!
-                end = self.content.find('}\n')
+                end = self.content.find('\n}\n')
                 if end != -1:
-                    blob = self.content[:end+2]
-                    self.content = self.content[end+2:]
+                    blob = self.content[:end+3]
+                    self.content = self.content[end+3:]
                     data = json.loads(blob)
                     return data
             elif self.content.startswith('---\n'):
