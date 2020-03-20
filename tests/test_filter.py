@@ -104,15 +104,15 @@ class TestQ(TestCase):
         """Single leg Q in exclude()"""
 
         self.assertEquals(
-            [
+            {
                 'test1.rst',
                 'test2.rst',
-            ],
-            [
+            },
+            set(
                 o.name for o in RST_FBO().exclude(
                     Q(name='test3.rst'),
                 )
-            ],
+            ),
         )
 
     def test_simple_get(self):
@@ -129,15 +129,15 @@ class TestQ(TestCase):
         """Logical or Qs"""
 
         self.assertEquals(
-            [
+            {
                 'test1.rst',
                 'test2.rst',
-            ],
-            [
+            },
+            set(
                 o.name for o in RST_FBO().filter(
                     Q(name='test1.rst') | Q(name='test2.rst'),
                 )
-            ],
+            ),
         )
 
     def test_and(self):
