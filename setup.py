@@ -1,7 +1,7 @@
 from setuptools import setup
 
 PACKAGE = 'django_FBO'
-VERSION = '4.0.1'
+VERSION = '4.1.0'
 
 setup(
     name=PACKAGE,
@@ -31,8 +31,8 @@ setup(
         ],
     },
     install_requires=[
-        'Django>=1.11.0',
-        'PyYAML~=3.13',
+        'Django>=2.1.0',
+        'PyYAML~=5.3.1',
     ],
     url='https://github.com/jaylett/django-filebacked-objects',
     classifiers=[
