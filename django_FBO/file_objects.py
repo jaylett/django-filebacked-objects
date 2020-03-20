@@ -137,7 +137,7 @@ class FileObject(metaclass=FileObjectMeta):
                 if end != -1:
                     blob = self.content[4:end+4]
                     self.content = self.content[end+8:]
-                    data = yaml.load(blob)
+                    data = yaml.safe_load(blob)
                     return data
             else:
                 # Implicit YAML if ':' before \n\n
@@ -148,7 +148,7 @@ class FileObject(metaclass=FileObjectMeta):
                     # YAML!
                     blob = self.content[:sep_idx]
                     self.content = self.content[sep_idx+2:]
-                    data = yaml.load(blob)
+                    data = yaml.safe_load(blob)
                     return data
         return {}
 
