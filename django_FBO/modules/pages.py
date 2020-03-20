@@ -13,7 +13,7 @@ or similar, which you can do using MEDIA_ROOT and MEDIA_URL).
 
 import os.path
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic import DetailView
 
 from .. import FileObject, FBO, Q, Bakeable

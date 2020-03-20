@@ -16,7 +16,7 @@ going to be some jockeying to make things work.
 """
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 import os.path
 
 from .. import FileObject

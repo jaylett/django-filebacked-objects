@@ -2,7 +2,7 @@ import os.path
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib.syndication.views import Feed as _Feed
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.feedgenerator import Atom1Feed
 from django.views.generic import (

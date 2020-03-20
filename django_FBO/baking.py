@@ -1,10 +1,13 @@
 from django.conf import settings
-from django.core.urlresolvers import (
+from django.urls import (
     get_resolver,
     resolve,
     reverse,
-    RegexURLPattern,
-    RegexURLResolver,
+)
+from django.urls.resolvers import (
+    RegexPattern,
+    URLPattern,
+    URLResolver,
 )
 from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
@@ -125,10 +128,10 @@ def bake(output_dir=None, resolver=None, verbosity=0, stdout=sys.stdout):
         resolver = get_resolver()
     if verbosity > 1:
         stdout.write("Baking %s\n" % str(resolver))
-    if isinstance(resolver, RegexURLResolver):
+    if isinstance(resolver, URLResolver):
         for up in resolver.url_patterns:
             bake(output_dir, up, verbosity, stdout)
-    elif isinstance(resolver, RegexURLPattern):
+    elif isinstance(resolver, URLPattern):
         view = resolver.callback
         # `view` is a callable, but it may also be
         # an instance of a CBV, which is all we support.
@@ -139,7 +142,8 @@ def bake(output_dir=None, resolver=None, verbosity=0, stdout=sys.stdout):
             view_class = view.view_class
             view_instance = view_class(**view.view_initkwargs)
             if isinstance(view_instance, Bakeable):
-                if resolver.regex.groups == 0:
+                if isinstance(resolver.pattern, RegexPattern) and \
+                    resolver.pattern.regex.groups == 0:
                     # This is unique, so ensure this URL gets baked.
                     # Otherwise (eg) homepages are really hard to
                     # get right. You must provide a name for this

@@ -68,18 +68,18 @@ class TestOperators(TestCase):
 
     def test_in(self):
         self.assertEqual(
-            [
+            {
                 'test2.rst',
                 'test3.rst',
-            ],
-            [
+            },
+            set(
                 o.name for o in RST_FBO().filter(
                     size__in=[
                         'little',
                         'middling',
                     ],
                 )
-            ],
+            ),
         )
 
     def test_no_such_operator(self):
